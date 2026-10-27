@@ -582,6 +582,8 @@ exit=0; pip --version -> pip 26.2.2; pip check -> No broken requirements found.
 - the two-stage locked install under the runner's initial pip;
 - the overall workflow result.
 
+*Clarification (added 2026-10-27): these items were unverified at the time of Gate 3. The later "Gate 5" section records the remote CI result: run 40515177175, success; sudo namespace path; uid/euid 1001; IPv4/IPv6 unreachable. The unprivileged path remains unverified on GitHub.*
+
 ---
 
 ## 2026-10-27: Gate 4 decision 1: IPv4/IPv6 probe-outcome regression tests, then full Gate 3 re-run
@@ -640,3 +642,70 @@ $ python -m pytest -p no:cacheprovider -q -rA tests/test_offline_script.py
 | `tests/test_offline_isolation.py` | 1 |
 
 **Result:** Gate 3 PASS on the updated tree. GitHub Actions has still not run.
+
+*Clarification (added 2026-10-27): "has still not run" reflects the state at the time of this Gate 3 re-run. The remote CI result is recorded in the later "Gate 5" section (run 40515177175, success).*
+
+---
+
+## 2026-10-27: Gate 5: remote CI validation on GitHub Actions (PR #1)
+
+**Identifiers**
+
+| Item | Value |
+|---|---|
+| Repository | `dhrubapatwary/route-smart-india` |
+| PR | **#1**, https://github.com/dhrubapatwary/route-smart-india/pull/1 (open, **draft**, base `main`) |
+| Tested commit | `43e69663dbf5ce128d694782b0b6c3f16750749d` (branch `feature/task-002-foundation`) |
+| Run | **40515177175**, https://github.com/dhrubapatwary/route-smart-india/actions/runs/40515177175 (event `pull_request`) |
+| Result | **success**. Workflow 37 s (created 13:47:28Z, completed 13:48:05Z). `checks` job 34 s (13:47:31Z → 13:48:05Z). |
+| Runner | image `ubuntu-24.04` (version 20261012.334.1); Python 3.13.16 |
+
+**How this was verified (2026-10-27, ~14:07Z, read-only):**
+- `gh run view 40515177175 --json …` for run and step results.
+- `gh run view 40515177175 --log`, saved outside the repo and inspected, for the lines quoted below.
+- `gh api …/check-runs/<job>/annotations`.
+
+**Step results.** All steps concluded `success`:
+
+| Step | Result | Log evidence |
+|---|---|---|
+| Locked two-stage dependency install | success | `install-locked: stage 1 bootstrap pip: pip 26.2.1 …`, then `Successfully installed pip-26.2.2`, then `stage 2 installing requirements/dev.lock.txt with pinned pip 26.2.2` |
+| Verify installed dependencies (`pip check`) | success | `No broken requirements found.` |
+| Lock consistency (`scripts/check_lock.py`) | success | `check-lock: ok (52 pins; lock matches dev.txt exactly)` |
+| `.gitignore` rules | success | `check-gitignore: ok (6 visible, 8 ignored)` |
+| Ruff lint | success | exit 0; the GitHub output format prints nothing on success |
+| Ruff format | success | `14 files already formatted` |
+| Mypy (strict) | success | `Success: no issues found in 14 source files` |
+| Pytest in a network namespace | success | see below |
+| Bandit | success | `No issues identified.`; `Total lines of code: 581` |
+| pip-audit (locked dependencies) | success | `No known vulnerabilities found` |
+
+**Network isolation (verbatim from the log)**
+```
+test-offline: isolation path: network namespace via sudo (GitHub Actions opt-in); privileges dropped to uid 1001 by setpriv
+test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[4026532219] pid=2627 uid=1001 euid=1001 gid=1001; exec pytest
+====================== 331 passed, 1 deselected in 1.63s =======================
+```
+- **Path taken:** the CI-only sudo fallback (owner decision R3). The step's environment set `ROUTESMART_OFFLINE_ALLOW_SUDO: 1`, and GitHub Actions sets `GITHUB_ACTIONS=true`.
+- **Unprivileged path:** it was not used, which means the script's first attempt failed on this runner. That is consistent with the documented Ubuntu 24.04 AppArmor restriction, but the script does not log the reason, so the cause is not proven.
+- **Runner user:** tests ran as uid/euid/gid **1001**, not root. The probe, which refuses euid 0, passed, and the pytest process was `exec`'d from it in the same process (pid 2627) and namespace.
+- **Isolation:** loopback was the only interface; IPv4 and IPv6 were unreachable.
+- **Namespace proof test:** `tests/test_offline_isolation.py` **ran and passed; it was not skipped**. CI runs pytest with `-q`, so there is no per-test line. The evidence is the counts: 331 passed + 1 deselected (the live canary), with **0 skipped and 0 failed**. Plain pytest collects the same 332 tests and skips exactly that one test, which happens only outside the offline script. The log's only three "skipped" mentions are Bandit's zero-count summary lines (`Total lines skipped (#nosec): 0`, …).
+
+**Other observations**
+- **Annotation:** one `notice`: "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026 …". This is informational and **not a CI failure**.
+- **Credentials in the log:** none found by the credential-pattern scan (`sk_live|AKIA…|-----BEGIN|ghp_…|github_pat_|xox[bp]-`).
+
+**Conclusion:** **Gate 5 remote CI validation passed for the observed run** (40515177175 on `43e6966`).
+
+**Limitations**
+- **What this proves:** one successful execution of the workflow on one runner image. It does not prove that every possible network-isolation bypass is impossible, and it is **not** a production sandbox certification.
+- **Untested paths:**
+  - the unprivileged namespace path has not run on GitHub;
+  - the sudo path has run once.
+- **Future runner images may differ.** For example, the announced `ubuntu-latest` → Ubuntu 26 migration may change which path is taken. The script fails closed if neither path works.
+
+**Outstanding**
+- The formal **Phase 1 exit review** is pending.
+- PR #1 stays draft and **must not be merged** before that review.
+- **Task 003 remains blocked** pending explicit owner approval.

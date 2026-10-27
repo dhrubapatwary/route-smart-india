@@ -83,14 +83,14 @@ These tests use the `allow_subprocesses` fixture, which lifts **only** the in-pr
 - **What the workflow does:** it sets `ROUTESMART_OFFLINE_ALLOW_SUDO=1`. GitHub sets `GITHUB_ACTIONS=true` itself. The owner approved this CI-only fallback on 2026-10-27 (R3), with enforcement in the script.
 - **What the fallback adds:** the runner's passwordless sudo is used for one command, `unshare --net`, and the tests themselves run unprivileged.
 - **The alternative:** remove the variable to require unprivileged isolation only. CI will then fail closed if the runner forbids it.
-- **Decision:** approved by the owner (R3, 2026-10-27). The sudo path is **not verified** until a GitHub Actions run demonstrates it.
+- **Decision:** approved by the owner (R3, 2026-10-27). The sudo path was **verified for one observed run** on 2026-10-27 (Gate 5, GitHub Actions run 40515177175; see the table below).
 
 **Verification status:**
 
 | Environment | Status |
 |---|---|
 | Local (Debian, util-linux 2.41.5) | Path 1 verified on 2026-10-27. uid inside the namespace = 1000 (not root). Missing-interpreter and no-namespace failure paths both exit 2. The probe refuses on the real host. |
-| GitHub Actions | **Unverified** until CI runs. Path 1 may be blocked by AppArmor. Path 2 (sudo) has never been exercised. |
+| GitHub Actions (Gate 5, 2026-10-27) | **Verified for the observed run.** [Run 40515177175](https://github.com/dhrubapatwary/route-smart-india/actions/runs/40515177175) **succeeded**. Isolation path: network namespace via sudo with the GitHub Actions opt-in (path 2). Namespace loopback-only; IPv4/IPv6 unreachable. Tests ran as UID/EUID 1001. Pytest: `331 passed, 1 deselected`. Path 1 (unprivileged) was not used on the runner; the reason is not logged, and it is consistent with the AppArmor restriction. **Path 1 has not been exercised on GitHub.** One successful run does not prove that every possible network-isolation bypass is impossible. |
 
 ## Live tests
 

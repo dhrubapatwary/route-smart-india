@@ -2,7 +2,14 @@
 
 **Status:** Task 001 (baseline audit) is done. The owner approved
 decisions D-PROP-01..08 on 2026-10-27 (see `DECISIONS.md`). Phase 1 is
-in progress and **not complete**.\
+in progress and **not complete**.
+**Current status (2026-10-27, Gate 5):** Task 002 is committed
+(`43e6966`) on `feature/task-002-foundation`, in draft PR #1 against
+`main`. Gate 3 local validation passed. **Gate 5 remote CI validation
+passed** (GitHub Actions run 40515177175). The **formal Phase 1 exit
+review is pending**, PR #1 must not be merged before it, and Task 003
+is blocked. Older Task log entries below are historical; the latest
+entry is authoritative.\
 **Pilot route:** Bengaluru (BLR) → Chennai (MAA).\
 **Product objective:** Explainable multimodal recommendations balancing
 time, cost and risk.
@@ -453,3 +460,22 @@ approved. **Stopping boundary:** stop after the round-3 report.
     (Gate 6).
 -   **Stopping boundary:** no Git operation without explicit operational
     authorization.
+
+**Task 002 closure: Gates 3–5 status** (2026-10-27; latest entry):
+
+| Workstream | Status | Evidence |
+|---|---|---|
+| Task 002 implementation and remediation (rounds 1–3, Gate 2, Gate 4 decision 1) | **Done** | Probe-outcome regression tests added. Commit `43e69663dbf5ce128d694782b0b6c3f16750749d` on `feature/task-002-foundation`. |
+| Gate 3 local validation | **PASS** | All 21 documented checks. Re-run after the probe tests: 330 passed + 1 skipped; 331 passed in the network namespace. |
+| Publication | **Done** (owner-authorized) | Branch pushed; draft PR #1 against `main`. `main` is unchanged at `2b302e0`. |
+| Gate 5 remote CI validation | **PASSED for the observed run** | GitHub Actions run 40515177175 succeeded. CI-only sudo namespace path; privileges dropped to uid 1001; namespace verified (lo only; IPv4/IPv6 unreachable); 331 passed, 1 deselected; namespace proof test passed. |
+| Documentation reconciliation | **Pending final review** | The Gate 5 records in CHECKPOINT, DECISIONS, ROADMAP, TEST_RESULTS and `docs/TESTING.md` are working-tree edits awaiting owner review; they are not yet committed. |
+| Formal Phase 1 exit review (Gate 6) | **Pending** | The Phase 1 acceptance criteria above are unchanged. The CI-run criterion now has recorded evidence; owner review of the working tree and owner approval of the Phase 1 exit are still required. |
+
+Notes:
+-   PR #1 must not be merged before the Phase 1 exit review.
+-   Task 003 has **not** started and remains blocked until the owner
+    explicitly approves the Phase 1 exit.
+-   Gate 5 verifies one observed run. It is not a production sandbox
+    certification. The unprivileged namespace path has not run on
+    GitHub.

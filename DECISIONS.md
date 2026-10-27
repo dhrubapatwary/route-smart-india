@@ -264,7 +264,14 @@ These are implementation choices made within the approved D-PROP-06 scope. They 
   - `scripts/check_lock.py` replaces the dry-run range check. It resolves `dev.txt` under the locked versions and fails on missing, obsolete or mismatched pins (N8).
 
 ### D-IMPL-08: OS-level network isolation for the test suite
-- **Status:** ~~PROPOSED~~ → **APPROVED: isolation requirement** (owner, recorded 2026-10-27; see "Owner decisions: Gate 1"). **Runtime behaviour is unverified until GitHub Actions runs.** (implemented in Task 002 remediation)
+- **Status:** ~~PROPOSED~~ → **APPROVED: isolation requirement** (owner, recorded 2026-10-27; see "Owner decisions: Gate 1"). At approval, runtime behaviour was unverified until GitHub Actions ran. **Current status (Gate 5, 2026-10-27): runtime verified for the observed run.**
+  - GitHub Actions run 40515177175 exercised the CI-only sudo namespace fallback successfully.
+  - The namespace was verified as loopback-only, with IPv4 and IPv6 unreachable.
+  - Privileges were dropped, and pytest ran with `uid=1001 euid=1001 gid=1001`.
+  - The namespace proof test passed.
+  - The unprivileged namespace path remains **unverified** on GitHub.
+  - This verifies the observed workflow run; it is **not** production sandbox certification.
+  - The approval and its conditions are unchanged; see the runtime verification addendum below. (Implemented in Task 002 remediation.)
 - **Choice:**
   - `scripts/test-offline.sh` runs pytest in a Linux network namespace, using `unshare --user --map-root-user --net`, with a `sudo -n unshare --net` + `setpriv` fallback.
   - Before running tests it proves isolation: `lo` must be the only interface, and a C-level `_socket` connect must fail with `ENETUNREACH`. Otherwise it fails closed.
@@ -272,7 +279,7 @@ These are implementation choices made within the approved D-PROP-06 scope. They 
 - **Rationale:** Review H5. The in-process guard cannot patch the immutable C-level socket type or `fork`/`exec`, so OS-level isolation is the reliable control for those paths.
 - **Verification:**
   - Locally on 2026-10-27, through the `unshare --user` path: the probe fails outside a namespace and passes inside one.
-  - **Unverified on GitHub Actions**, including the `sudo` fallback, until CI runs.
+  - **Unverified on GitHub Actions** (historical, before Gate 5), including the `sudo` fallback, until CI runs. *The sudo fallback was later verified in run 40515177175; see the Gate 5 addendum.*
 - **Consequences:** If the runner forbids both paths, CI fails closed rather than silently running without isolation.
 - **Amended 2026-10-27 (round 3; still PROPOSED):**
   - The probe and pytest now run in one process in the same namespace: the probe `exec`s pytest (N4).
@@ -288,7 +295,16 @@ These are implementation choices made within the approved D-PROP-06 scope. They 
   - The probe refuses to run as root (euid 0) on every path, and prints `netns`, `pid`, `uid`, `euid` and `gid` as CI evidence.
   - It exports `ROUTESMART_OFFLINE_NETNS`, and `tests/test_offline_isolation.py` asserts from inside pytest that the suite runs in that same namespace, as non-root, with only `lo`.
   - Stub-based tests in `tests/test_offline_script.py` cover: the opt-in is off by default; it is ignored outside GitHub Actions; the CI path fails closed when the namespace cannot be created; and `setpriv` drops to the invoking non-root uid/gid. A mutation check confirmed these tests fail if the `GITHUB_ACTIONS` condition or the root refusal is removed.
-  - **Not verified:** the sudo path itself has never run. GitHub Actions evidence is required (Gate 5).
+  - **Not verified (historical, before Gate 5):** at the time of this amendment, the sudo path had never run, and GitHub Actions evidence was required (Gate 5). *Superseded by the runtime verification addendum below.*
+- **Runtime verification addendum (2026-10-27, Gate 5; evidence only, the approval and its conditions are unchanged):**
+  - **Where:** GitHub Actions run **40515177175** (https://github.com/dhrubapatwary/route-smart-india/actions/runs/40515177175) on commit `43e69663dbf5ce128d694782b0b6c3f16750749d` (PR #1, draft).
+  - **Path exercised:** the CI-only sudo fallback ran successfully: `isolation path: network namespace via sudo (GitHub Actions opt-in); privileges dropped to uid 1001 by setpriv`.
+  - **Namespace verified:** loopback only, IPv4/IPv6 unreachable (`namespace verified (lo only; IPv4/IPv6 unreachable) … uid=1001 euid=1001 gid=1001`).
+  - **Tests:** pytest ran in that process as uid/euid 1001, with 331 passed and 1 deselected. The namespace proof test passed (0 skipped).
+  - **Overall:** the workflow concluded `success`.
+  - **Unchanged:** the fallback still requires **both** `ROUTESMART_OFFLINE_ALLOW_SUDO=1` and `GITHUB_ACTIONS=true`, and the script still fails closed.
+  - **Not verified:** the unprivileged namespace path has not run on GitHub.
+  - **Scope:** one successful run is evidence for that run, not production sandbox certification. Details are in TEST_RESULTS.md, "Gate 5".
 
 ---
 
@@ -372,6 +388,7 @@ These were recorded on 2026-10-27 from the owner's Gate 1 decision message. No e
   - Document updates, and verify the two-stage installation in CI.
   - Do not represent it as a production dependency lock.
 - **D-IMPL-08 (CI isolation):** The isolation requirement is approved. **Runtime behaviour remains unverified until GitHub Actions runs.** Verify on CI: the actual runner path, the runner-user identity, IPv4 and IPv6 isolation, and fail-closed behaviour.
+  - *Verification note (added 2026-10-27, Gate 5; the owner wording above is unchanged):* GitHub Actions run 40515177175 verified the runner path (CI-only sudo fallback), the runner-user identity (`uid=1001 euid=1001 gid=1001`), and IPv4/IPv6 isolation (loopback-only). See the D-IMPL-08 runtime verification addendum. Fail-closed behaviour is covered by the local regression tests. It was not triggered in that run, because isolation succeeded.
 
 ### R2: M4 historical labels: APPROVED
 The SUPERSEDED labels for D-001, D-002, D-004 and D-007 are confirmed, conditional on the Gate 1 entry-by-entry check.
@@ -412,3 +429,9 @@ Two lines of verbatim historical Task 001 output contain the owner's local usern
 - **R-029 (Gate 4 decision 1, 2026-10-27):** Added committed regression tests for the probe's IPv4/IPv6 outcomes in `tests/test_offline_script.py`. There are 17 new tests, using the real probe source with fake `_socket`/`if_nameindex`/`execv`, so no network is used.
   - Mutation check: accepting any errno fails 12 tests; IPv4 also accepting `ECONNREFUSED` fails 1; not rejecting a successful connect fails 2; skipping the IPv6 check fails 8; removing the interface check fails 1.
   - The probe itself is unchanged.
+- **R-030 (Gate 5, recorded 2026-10-27):** Remote CI evidence recorded.
+  - **Run:** run 40515177175 on `43e6966` (PR #1, draft, base `main`) concluded `success`: 37 s workflow, 34 s job.
+  - **Steps:** all passed: the two-stage locked install (bootstrap pip 26.2.1 → pinned 26.2.2), `pip check`, `check_lock.py`, the `.gitignore` check, ruff lint and format, strict mypy, pytest in the network namespace, bandit and pip-audit.
+  - **Isolation:** the sudo path ran as uid 1001, the namespace was verified, and pytest gave 331 passed / 1 deselected with the namespace proof test passing.
+  - **Decision record:** the D-IMPL-08 verification addendum was added. No decision wording or conditions were changed.
+  - **Documentation only:** no code, test, dependency or workflow change.

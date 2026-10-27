@@ -4,6 +4,42 @@ Newest entry first. Read this at the start of every session.
 
 ---
 
+## 2026-10-27: Gate 5. Remote CI validation PASSED for the observed run; documentation reconciliation in progress. STOPPED.
+
+**Phase:** Phase 1 **in progress (NOT complete)**. The formal Phase 1 exit review (Gate 6) is pending.
+
+- **Task 002 commit:** `43e69663dbf5ce128d694782b0b6c3f16750749d` on `feature/task-002-foundation`. It was not amended. Local `main` = `origin/main` = `2b302e0`.
+- **PR #1:** https://github.com/dhrubapatwary/route-smart-india/pull/1 is **open, draft**, base `main`. **Merge is not authorized.**
+- **GitHub Actions run 40515177175:** **success** (workflow 37 s, `checks` job 34 s). https://github.com/dhrubapatwary/route-smart-india/actions/runs/40515177175
+  - Every step passed: the two-stage locked install (bootstrap pip 26.2.1 → pinned 26.2.2), `pip check`, `check_lock.py`, `.gitignore`, ruff lint and format, strict mypy, bandit and pip-audit.
+  - **Isolation:** the network namespace was created via sudo with the GitHub Actions opt-in, and privileges were dropped to uid 1001 by `setpriv`. Namespace verified: lo only; IPv4/IPv6 unreachable; uid=1001 euid=1001 gid=1001.
+  - **pytest:** 331 passed, 1 deselected. The namespace proof test passed (0 skipped).
+  - **Annotation:** only an informational `ubuntu-latest` → Ubuntu 26 migration notice.
+- **Gate 5 remote CI validation: PASSED for the observed run.** This is not production sandbox certification. The unprivileged namespace path has not run on GitHub.
+- **Documentation reconciliation: pending final owner review.** These are **uncommitted working-tree edits**:
+  - `TEST_RESULTS.md`: the Gate 5 section, plus clarifications on the historical Gate 3 statements;
+  - `DECISIONS.md`: the D-IMPL-08 current status, the historical qualifiers, the addendum and R-030;
+  - `ROADMAP.md`: the current status and the Gates 3–5 table;
+  - `docs/TESTING.md`: the verification status table;
+  - this entry.
+- **External evidence files** (outside the repository, in `~/Text/`, not copied in):
+  - `RemediationReport-27Oct-1801.md`
+  - `RemediationReport-Round2-27Oct-1814.md`
+  - `RemediationReport-Round3-27Oct-1832.md` (the final technical remediation report)
+  - `Task002-OwnerDecision-27Oct-1832.md`
+  - `Task002-OwnerDecisionFinal-27Oct-1837.md`
+  - `Phase1-Gate5-Evidence-27Oct2026.md`
+
+  `Task002-OwnerDecisionFinal-27Oct-1837.md` is byte-identical to the Round 3 report (md5 `5e0ccfb5…`), so it holds no separate decision text. The owner decisions on record are the ones recorded in `DECISIONS.md`, "Owner decisions: Gate 1".
+- **Task 003:** **not started**; blocked pending explicit owner approval of the Phase 1 exit.
+
+**Next action (owner):**
+1. Review the documentation diff.
+2. If approved, authorize a documentation-only commit and push to `feature/task-002-foundation`.
+3. Then conduct the formal Phase 1 exit review (Gate 6).
+
+---
+
 ## 2026-10-27: Gate 4 decision 1. IPv4/IPv6 probe-outcome tests added; Gate 3 re-run PASS. STOPPED before any Git mutation.
 
 - Added 17 committed regression tests for the offline probe's outcomes (fakes only; probe unchanged). The mutation check confirms they guard each branch.
