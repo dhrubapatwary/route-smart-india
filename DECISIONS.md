@@ -389,6 +389,12 @@ These were recorded on 2026-10-27 from the owner's Gate 1 decision message. No e
   - Do not represent it as a production dependency lock.
 - **D-IMPL-08 (CI isolation):** The isolation requirement is approved. **Runtime behaviour remains unverified until GitHub Actions runs.** Verify on CI: the actual runner path, the runner-user identity, IPv4 and IPv6 isolation, and fail-closed behaviour.
   - *Verification note (added 2026-10-27, Gate 5; the owner wording above is unchanged):* GitHub Actions run 40515177175 verified the runner path (CI-only sudo fallback), the runner-user identity (`uid=1001 euid=1001 gid=1001`), and IPv4/IPv6 isolation (loopback-only). See the D-IMPL-08 runtime verification addendum. Fail-closed behaviour is covered by the local regression tests. It was not triggered in that run, because isolation succeeded.
+  - *Gate 6 evidence assessment (added 2026-10-27; the owner wording and conditions above are unchanged):* The same fail-closed regression tests also **ran on the GitHub runner**. In runs 40515177175 and 40519555271, pytest's per-file progress shows `tests/test_offline_script.py` with 34 passing tests, matching local collection.
+    - **Verified on CI:**
+      - (a) unit-level fail-closed behaviour with stub and fake inputs: namespace-creation failure exits 2 without pytest; the opt-in is ignored outside GitHub Actions; root is refused; unexpected IPv4/IPv6 outcomes and extra interfaces fail closed before pytest;
+      - (b) real namespace establishment and verification.
+    - **Not verified on CI:** (c) a **runner-level failure path** in which the script itself refuses to run pytest. In both runs the unprivileged path failed on the runner and the script took the approved sudo path, which is a fallback, not a fail-closed exit.
+    - **Status of the "fail-closed behaviour" CI condition: open, owner decision required.** A safe runner-level verification method has been proposed for owner approval.
 
 ### R2: M4 historical labels: APPROVED
 The SUPERSEDED labels for D-001, D-002, D-004 and D-007 are confirmed, conditional on the Gate 1 entry-by-entry check.
@@ -435,3 +441,9 @@ Two lines of verbatim historical Task 001 output contain the owner's local usern
   - **Isolation:** the sudo path ran as uid 1001, the namespace was verified, and pytest gave 331 passed / 1 deselected with the namespace proof test passing.
   - **Decision record:** the D-IMPL-08 verification addendum was added. No decision wording or conditions were changed.
   - **Documentation only:** no code, test, dependency or workflow change.
+- **R-031 (Gate 6 remediation, 2026-10-27):** Documentation-currency corrections after the Gate 6 exit review.
+  - **CHECKPOINT:** the stale "uncommitted" status and next action in the Gate 5 entry are annotated as superseded, and a new Gate 6 entry was added.
+  - **ROADMAP:** the current status and the Gates 3–6 table now record `b64cb17` and CI run 40519555271.
+  - **DECISIONS:** a Gate 6 evidence assessment was added under the D-IMPL-08 verification note. The CI logs show the fail-closed tests ran on the runner; a runner-level failure path was not exercised, so the condition stays **open** for an owner decision.
+  - **TEST_RESULTS:** a Gate 6 evidence section was added.
+  - No decision wording or conditions were changed, and there are no code, test, dependency or workflow changes.

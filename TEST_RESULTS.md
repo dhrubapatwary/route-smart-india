@@ -709,3 +709,60 @@ test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[40
 - The formal **Phase 1 exit review** is pending.
 - PR #1 stays draft and **must not be merged** before that review.
 - **Task 003 remains blocked** pending explicit owner approval.
+
+---
+
+## 2026-10-27: Gate 6: exit-review evidence (independent re-verification)
+
+**Context**
+- Read-only verification during the formal Phase 1 exit review, at HEAD `b64cb175b852940660d39f46a641e4f3f1ab4302` on `feature/task-002-foundation`.
+- The tree was clean, and `main` = `origin/main` = `2b302e0`.
+- No live provider calls were made; index access was used only by `check_lock.py` and pip-audit.
+
+**CI run 40519555271**, https://github.com/dhrubapatwary/route-smart-india/actions/runs/40519555271. Verified with `gh run view --json …` and `gh run view --log`.
+- **Run:** event `pull_request`; commit `b64cb175b852940660d39f46a641e4f3f1ab4302`; **success**; workflow 14:16:31Z → 14:17:05Z; `checks` job 14:16:34Z → 14:17:04Z; 0 failed steps.
+- **Install:** `install-locked: stage 1 bootstrap pip: pip 26.2.1 …`, then `Successfully installed pip-26.2.2`, then `stage 2 … with pinned pip 26.2.2`.
+- **Quality and dependency checks:**
+  - `No broken requirements found.`
+  - `check-lock: ok (52 pins; lock matches dev.txt exactly)`
+  - `check-gitignore: ok (6 visible, 8 ignored)`
+  - `14 files already formatted`
+  - `Success: no issues found in 14 source files`
+- **Isolation:**
+  - `test-offline: isolation path: network namespace via sudo (GitHub Actions opt-in); privileges dropped to uid 1001 by setpriv`
+  - `test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[4026532220] pid=2588 uid=1001 euid=1001 gid=1001; exec pytest`
+- **Tests:** `331 passed, 1 deselected`, 0 skipped. Per-file progress lines include `tests/test_offline_script.py` (34 dots) and `tests/test_offline_isolation.py` (1 dot). Run 40515177175 shows the same two lines.
+- **Security:** bandit `No issues identified.` (581 LOC); pip-audit `No known vulnerabilities found`; no credential patterns in the log.
+
+**Local re-run at `b64cb17` (2026-10-27T14:22:08Z; no cache or bytecode writes).** Every command exited 0.
+
+| Command | Result |
+|---|---|
+| `python -m pytest -p no:cacheprovider -q` | 330 passed, 1 skipped, 1 deselected |
+| … `--import-mode=importlib` | 330 passed, 1 skipped, 1 deselected |
+| `scripts/test-offline.sh -p no:cacheprovider -q` | 331 passed, 1 deselected |
+| `… -m live` | 1 skipped |
+| `ruff check --no-cache` / `ruff format --check --no-cache` | clean / 14 files formatted |
+| `mypy --cache-dir=/dev/null` | no issues in 14 files |
+| `bandit -q -c pyproject.toml -r src` | no issues |
+| pip-audit (lock, `--disable-pip --require-hashes`) | No known vulnerabilities |
+| `pip check` | ok |
+| `check_lock.py` | 52 pins ok |
+| `check-gitignore.sh` | ok |
+
+**Scope checks on the committed tree (HEAD):**
+- 0 network or database client imports in `src/`;
+- 0 provider or booking code paths;
+- 0 credential patterns outside a documentation line in this file;
+- `.env` not tracked;
+- 0 `secrets.` references in `ci.yml`.
+
+**D-IMPL-08 fail-closed evidence**
+
+| Kind | Status |
+|---|---|
+| (a) Unit-level fail-closed tests (stub/fake inputs) | **ran and passed on CI** in both runs |
+| (b) Real namespace establishment and verification | **observed on CI** in both runs |
+| (c) Runner-level failure path (the script refusing to run pytest on the runner) | **not exercised** on GitHub |
+
+**Not recorded here:** the CI result of the Gate 6 remediation commit itself, which can only be observed after it is pushed (PR #1 checks).

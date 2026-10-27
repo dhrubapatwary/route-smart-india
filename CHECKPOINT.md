@@ -4,6 +4,56 @@ Newest entry first. Read this at the start of every session.
 
 ---
 
+## 2026-10-27: Gate 6. Formal Phase 1 exit review completed (exit NOT yet recommended); documentation-currency remediation. STOPPED.
+
+**Phase:** Phase 1 **in progress (NOT complete)**. The owner has **not** approved the Phase 1 exit.
+
+**Commits** (branch `feature/task-002-foundation`; `main` = `origin/main` = `2b302e0`, unchanged):
+- `43e69663dbf5ce128d694782b0b6c3f16750749d`: Task 002 implementation.
+- `b64cb175b852940660d39f46a641e4f3f1ab4302`: Gate 5 documentation reconciliation, owner-reviewed and authorized.
+- **This entry** is part of the Gate 6 documentation-only remediation commit made on top of `b64cb17`. Its CI result is reported in PR #1 and is not recorded here; a commit cannot record its own CI run.
+
+**PR #1:** https://github.com/dhrubapatwary/route-smart-india/pull/1, **open, draft**, base `main`. **Merge is not authorized.**
+
+**CI evidence (independently verified at Gate 6 from run metadata and full logs):**
+
+| Run | Commit | Result |
+|---|---|---|
+| 40515177175 | `43e6966` | **success** |
+| 40519555271 | `b64cb17` | **success**: workflow 14:16:31Z → 14:17:05Z; `checks` job 30 s |
+
+Both runs show:
+- the two-stage locked install, `pip check`, `check_lock.py`, the `.gitignore` check, ruff, format, mypy, bandit and pip-audit all passing;
+- the CI-only sudo namespace path; privileges dropped to uid 1001; `namespace verified (lo only; IPv4/IPv6 unreachable) … uid=1001 euid=1001 gid=1001`;
+- `331 passed, 1 deselected`, 0 skipped;
+- per-file progress lines `tests/test_offline_script.py` = 34 tests and `tests/test_offline_isolation.py` = 1;
+- no credential patterns in the logs.
+
+**Gate 6 review (2026-10-27):** completed; recommendation **"do not recommend Phase 1 exit yet"**.
+- **Technical evidence** supports exit. The 14:22Z local re-run at `b64cb17` passed (TEST_RESULTS.md, "Gate 6").
+- **Gap found:** the documentation-currency gap (stale "uncommitted" status and next action; run 40519555271 not recorded) is corrected in this remediation.
+
+**D-IMPL-08 fail-closed condition: OPEN, owner decision required.** The approved wording asks CI to verify "fail-closed behaviour".
+- **Verified on CI:**
+  - (a) unit-level fail-closed tests using stub and fake inputs: all 34 tests in `tests/test_offline_script.py` ran and passed on the runner in both runs;
+  - (b) real namespace establishment and verification.
+- **Not verified on CI:** (c) a **runner-level failure path**, where the script refuses to run pytest. It has never been triggered on GitHub. The unprivileged path failed on the runner, but the script then took the approved sudo path; that is a fallback, not a fail-closed exit.
+- A safe verification method has been proposed for owner approval (see the Gate 6 remediation report). It would be a workflow change, outside this documentation-only task.
+
+**Remaining before Phase 1 exit:**
+1. The owner resolves the D-IMPL-08 fail-closed condition: accept (a) + (b) as sufficient, or approve the proposed runner-level check and its evidence.
+2. Complete any evidence or documentation that decision requires.
+3. A successful CI run on the final HEAD of PR #1.
+4. Explicit owner approval of the Phase 1 exit.
+
+**Separate owner decisions:**
+- whether Phase 1 exit also requires merging PR #1 (merge needs its own authorization);
+- branch protection on `main` (R6; no settings changes authorized).
+
+**Task 003:** **not started**; blocked pending explicit owner approval of the Phase 1 exit.
+
+---
+
 ## 2026-10-27: Gate 5. Remote CI validation PASSED for the observed run; documentation reconciliation in progress. STOPPED.
 
 **Phase:** Phase 1 **in progress (NOT complete)**. The formal Phase 1 exit review (Gate 6) is pending.
@@ -16,7 +66,7 @@ Newest entry first. Read this at the start of every session.
   - **pytest:** 331 passed, 1 deselected. The namespace proof test passed (0 skipped).
   - **Annotation:** only an informational `ubuntu-latest` → Ubuntu 26 migration notice.
 - **Gate 5 remote CI validation: PASSED for the observed run.** This is not production sandbox certification. The unprivileged namespace path has not run on GitHub.
-- **Documentation reconciliation: pending final owner review.** These are **uncommitted working-tree edits**:
+- **Documentation reconciliation:** when this entry was written, the changes were **uncommitted working-tree edits** pending owner review. *Update (Gate 6 remediation, 2026-10-27): the owner reviewed them, and they were committed as `b64cb175b852940660d39f46a641e4f3f1ab4302` and pushed. CI run 40519555271 on that commit succeeded. See the newer entry above.* The files were:
   - `TEST_RESULTS.md`: the Gate 5 section, plus clarifications on the historical Gate 3 statements;
   - `DECISIONS.md`: the D-IMPL-08 current status, the historical qualifiers, the addendum and R-030;
   - `ROADMAP.md`: the current status and the Gates 3–5 table;
@@ -33,10 +83,12 @@ Newest entry first. Read this at the start of every session.
   `Task002-OwnerDecisionFinal-27Oct-1837.md` is byte-identical to the Round 3 report (md5 `5e0ccfb5…`), so it holds no separate decision text. The owner decisions on record are the ones recorded in `DECISIONS.md`, "Owner decisions: Gate 1".
 - **Task 003:** **not started**; blocked pending explicit owner approval of the Phase 1 exit.
 
-**Next action (owner):**
+**Next action (owner), as of this entry:**
 1. Review the documentation diff.
 2. If approved, authorize a documentation-only commit and push to `feature/task-002-foundation`.
 3. Then conduct the formal Phase 1 exit review (Gate 6).
+
+*Status (Gate 6 remediation, 2026-10-27): steps 1–3 are done. The diff was reviewed, committed as `b64cb17` and pushed, and the Gate 6 review was completed. The current next actions are in the newer entry above.*
 
 ---
 
