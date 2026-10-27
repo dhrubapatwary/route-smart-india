@@ -4,7 +4,30 @@
 decisions D-PROP-01..08 on 2026-10-27 (see `DECISIONS.md`). **Phase 1
 exit was approved by the owner on 2026-10-27** (Gate 6; DECISIONS.md
 G6-2).
-**Current status (2026-10-27, Task 003 implemented and remediated; awaiting owner review in draft PR #3):**
+**Current status (2026-10-27, after the PR #3 merge; verified against GitHub):**
+-   **Task 003 (Phase 2, increment 1): implemented and merged into `main`.**
+    PR #3 (https://github.com/dhrubapatwary/route-smart-india/pull/3) was
+    merged at 2026-10-27T19:00:23Z.
+    -   Final PR head: `5aea0c095272e7ff88845bcd8ba7f5ee131c302e`.
+    -   Merge commit: `725e2660be8fca45021b8a75c5d623337706cfe4`. Its
+        parents are `3510ade` and `5aea0c0`, and its tree is identical to
+        the PR head.
+    -   Task 003 is complete as a merged implementation increment.
+-   **CI:**
+    -   Run 40563608783 (`pull_request`) on the exact PR head `5aea0c0`:
+        success, 427 passed.
+    -   Run 40565168769 (`push`) on the merge commit `725e266`: success,
+        427 passed.
+
+    Each run is evidence for its own commit (see `TEST_RESULTS.md`).
+-   **Owner approval pending (not started, not authorized):**
+    -   **Phase 2 increment 2 (scoring)** needs the scoring model decided
+        (**P2-PROP-05, PROPOSED**, with four open questions in
+        `DECISIONS.md`), plus explicit owner approval of its scope and
+        stopping point.
+    -   Approval to merge PR #3 does not authorize any later increment.
+
+**Earlier status (2026-10-27, Task 003 implemented and remediated; awaiting owner review in draft PR #3; historical):**
 -   **Approved (owner, 2026-10-27):** P2-PROP-01..04 (`DECISIONS.md`,
     "Owner decisions: Phase 2 planning"). The Phase 2 plan is approved as
     a planning structure only; later increments need their own
@@ -171,8 +194,8 @@ recorded scope, stopping point and owner authorization before work starts
 
 | Increment | Proposed content | Owner decisions needed first | Status |
 |---|---|---|---|
-| **1: Task 003** | Deterministic sample-data option providers for BLR → MAA (all five modes) and a concurrent collector, using the existing `TravelOption` contract unchanged. Also a scoring-model *proposal* (documentation only). | P2-PROP-01 (scope), P2-PROP-02 (travel-date interpretation), P2-PROP-03 (sample place identifiers) | **Approved 2026-10-27**; implemented on `feature/task-003-sample-providers`; draft PR for owner review (not merged) |
-| 2 (candidate) | Deterministic scoring module | Approval of the scoring model: weights, normalisation, directionality, missing data, ties (CLAUDE.md §8; D-PROP-07 open question) | Not proposed in detail |
+| **1: Task 003** | Deterministic sample-data option providers for BLR → MAA (all five modes) and a concurrent collector, using the existing `TravelOption` contract unchanged. Also a scoring-model *proposal* (documentation only). | P2-PROP-01 (scope), P2-PROP-02 (travel-date interpretation), P2-PROP-03 (sample place identifiers) | **Approved 2026-10-27; implemented and merged 2026-10-27** (PR #3, merge commit `725e266`) |
+| 2 (candidate) | Deterministic scoring module | Approval of the scoring model: weights, normalisation, directionality, missing data, ties (CLAUDE.md §8; D-PROP-07 open question) | Not proposed in detail. The scoring model is proposed as P2-PROP-05 (PROPOSED). **Not started; not authorized.** |
 | 3 (candidate) | Schema extensions and the backend API contract and service | Final schema approval (D-IMPL-03 Phase 2 gate: risk inputs, cost breakdown, place codes, API envelope); API framework choice (a new dependency) | Not proposed in detail |
 | 4 (candidate) | Minimal client/PWA view | Client/PWA approach (ROADMAP Phase 7 requires it to be selected in `DECISIONS.md`) | Not proposed in detail |
 
@@ -617,6 +640,25 @@ deep immutability of the fixtures, and strict validation of
 `max_concurrency`. There are now 96 provider tests. Evidence is in
 `TEST_RESULTS.md`. Scope, acceptance criteria and the stopping point are
 unchanged.
+
+**Post-merge status (2026-10-27): implemented and merged.** PR #3 was
+merged into `main` at 2026-10-27T19:00:23Z. The final head was `5aea0c0`
+and the merge commit is `725e266`; its tree is identical to the head.
+-   **Delivered:**
+    -   deterministic, sample-labelled providers for flight, rail, car,
+        cab and bus (BLR → MAA);
+    -   query validation;
+    -   bounded concurrent collection with per-provider outcomes;
+    -   revalidation of provider output;
+    -   immutable fixtures;
+    -   strict validation of the concurrency argument.
+-   **Unchanged by this increment:** the `TravelOption` contract and
+    schema, dependencies, the network guard, the offline script, CI
+    configuration and repository settings.
+-   **CI:** run 40563608783 succeeded on the PR head, and push run
+    40565168769 succeeded on the merge commit (`TEST_RESULTS.md`).
+-   The stopping point was reached. **Increment 2 has not started** and
+    needs separate owner approval (see "Current status").
 
 **Purpose:** a deterministic, tested, mocked source of travel options for
 the five modes, used as input for later Phase 2 scoring and API work.

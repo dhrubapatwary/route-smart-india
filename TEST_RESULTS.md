@@ -1020,3 +1020,24 @@ test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[40
 - This entry is part of a later documentation-only commit. A commit cannot record the result of its own CI run, so that run is reported outside this file and verified independently.
 - **Not run by CI:** the normal pytest suite, importlib mode, the environment pip-audit and `git diff --check`. Their evidence is local only (see the entries above).
 - **Limitations unchanged:** no real refusal by the script on the runner was demonstrated, and the unprivileged path is unverified on GitHub.
+
+---
+
+## 2026-10-27: PR #3 merge record and post-merge CI on `main`: run 40565168769
+
+**Context**
+- **PR #3** (https://github.com/dhrubapatwary/route-smart-india/pull/3) was merged at 2026-10-27T19:00:23Z.
+- **Final PR head:** `5aea0c095272e7ff88845bcd8ba7f5ee131c302e`.
+- **Merge commit:** `725e2660be8fca45021b8a75c5d623337706cfe4`; parents `3510ade` and `5aea0c0`.
+- **Tree check:** the merge tree is identical to the PR head, verified with `git rev-parse 725e266^{tree}` = `5aea0c0^{tree}` (`bd09b4f…`).
+- **Verification:** `gh api repos/…/pulls/3`, `gh run view` and the job log via the jobs API. Read-only.
+
+| Run | Commit | Event | Status / conclusion | Evidence from the job log |
+|---|---|---|---|---|
+| [40563608783](https://github.com/dhrubapatwary/route-smart-india/actions/runs/40563608783) | `5aea0c0` (final PR head) | `pull_request` | completed / **success** (18:49:58Z → 18:50:31Z) | `427 passed, 1 deselected`; 0 non-success steps; namespace verified |
+| [40565168769](https://github.com/dhrubapatwary/route-smart-india/actions/runs/40565168769) | `725e266` (merge commit on `main`) | `push` | completed / **success** (19:00:28Z → 19:02:15Z) | `427 passed, 1 deselected`; 0 non-success steps; sudo namespace path; uid 1001; namespace verified (lo only; IPv4/IPv6 unreachable) |
+
+**Notes**
+- Each run is evidence for its own commit only.
+- **Local vs CI:** the earlier local-only checks (normal and importlib pytest, the environment pip-audit, `git diff --check`) ran on the PR branch commits recorded above, not on the merge commit. Because the trees are identical, the code is the same, but no local run on `725e266` itself is claimed.
+- **Limitations unchanged:** no real refusal by the script on the runner was demonstrated, and the unprivileged path is unverified on GitHub.
