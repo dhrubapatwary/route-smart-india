@@ -984,4 +984,21 @@ test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[40
 **Not run, and unchanged**
 - actionlint and shellcheck: no workflow or shell script changed.
 - The 2 Low bandit findings in the unchanged `scripts/check_lock.py` (recorded above) were not addressed; they are out of scope.
-- **CI:** recorded below once the run completes. It is not claimed here.
+- **CI:** see "CI on the remediation commit" below (recorded after the run completed).
+
+**CI on the remediation commit:** run 40561490964, https://github.com/dhrubapatwary/route-smart-india/actions/runs/40561490964
+- **Run:** event `pull_request` (PR #3, draft); head `fa926874572abb81bd508114103245065a09d111`; **success** (18:36:07Z → 18:36:38Z); 0 non-success steps.
+- **Verification:** `gh run view` and the job log via the jobs API (491 lines). Read-only.
+- **Checks:**
+  - `check-lock: ok (52 pins; lock matches dev.txt exactly)`
+  - `check-gitignore: ok (6 visible, 8 ignored)`
+  - `22 files already formatted`
+  - `Success: no issues found in 22 source files`
+  - bandit `No issues identified.`; pip-audit `No known vulnerabilities found`
+- **Isolation:**
+  - `isolation path: network namespace via sudo (GitHub Actions opt-in); privileges dropped to uid 1001 by setpriv`
+  - `namespace verified (lo only; IPv4/IPv6 unreachable) … uid=1001 euid=1001 gid=1001`
+- **Tests:** `427 passed, 1 deselected`. The `tests/providers/` files appear in the progress lines.
+- **Log hygiene:** no `##[error]` lines.
+- **Limitations unchanged:** no real refusal by the script on the runner was demonstrated, and the unprivileged path is unverified on GitHub.
+- **Not covered:** this documentation-only follow-up commit gets its own CI run. It is reported in the session report, not here.
