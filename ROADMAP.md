@@ -4,22 +4,34 @@
 decisions D-PROP-01..08 on 2026-10-27 (see `DECISIONS.md`). **Phase 1
 exit was approved by the owner on 2026-10-27** (Gate 6; DECISIONS.md
 G6-2).
-**Current status (2026-10-27, Phase 2 planning revision PROPOSED; verified against GitHub):**
+**Current status (2026-10-27, Phase 2 planning revision; owner decisions recorded):**
 -   **`main`:** `7bc6416ded1d4f9bac5dabf011703aeef45a6b35`, the PR #4 merge
     commit (documentation of the PR #3 merge). Post-merge CI run
     40566118857 (`push`, `7bc6416`): success.
 -   **Completed:** Task 003 (Phase 2, increment 1) is implemented and
     merged (PR #3, `725e266`).
--   **Not started, not authorized:** increment 2 (scoring) and every
-    later increment.
--   **PROPOSED --- OWNER APPROVAL REQUIRED:**
-    -   the revised scoring package (P2-PROP-05 rev. 2);
-    -   the increment 2 scope (P2-PROP-06);
-    -   the extended increment sequence 2--13 with its phase mapping
-        (P2-PROP-07; see "Extended increment sequence" under Phase 2);
-    -   the open contract and itinerary questions (P2-PROP-08).
+-   **Owner decisions (2026-10-27; `DECISIONS.md`, "Owner decisions:
+    Phase 2 planning revision"):**
+    1.  **Accepted in principle:** the extended roadmap direction
+        (P2-PROP-07). The approved numbering stays authoritative:
+        -   3 splits into 3a (planning-only review) and 3b (schema/API);
+        -   4 remains the client/PWA;
+        -   new capabilities are proposed increments 5--13.
 
-    Approving the roadmap does **not** authorize any increment.
+        Phase definitions and exit criteria remain authoritative. This
+        is a planning structure, **not** authorization to implement any
+        increment.
+    2.  **Authorized, planning only:** **increment 3a**, the contract and
+        itinerary review (P2-PROP-08 questions). **Not started.** Its
+        stopping point is a documented recommendation for a later owner
+        decision; there is no schema, code or contract change.
+    3.  **Unresolved (open):** the scoring decisions in P2-PROP-05 rev. 2
+        and the increment 2 scope (P2-PROP-06). Equal time/cost weights
+        are a provisional proposal only.
+    4.  **Not authorized:**
+        -   increment 2 (blocked on item 3);
+        -   increments 3b and 4 (existing gates);
+        -   increments 5--13 (proposals).
 
 **Earlier status (2026-10-27, after the PR #3 merge; verified against GitHub; historical):**
 -   **Task 003 (Phase 2, increment 1): implemented and merged into `main`.**
@@ -229,19 +241,26 @@ recorded scope, stopping point and owner authorization before work starts
 -   No live providers, new dependencies, costs or deployment without
     approval (CLAUDE.md §4, §6, §11).
 
-*(Annotation 2026-10-27: an extended increment sequence is **proposed**
-below (P2-PROP-07). It keeps this approved numbering: increments 2--4 keep
-their meaning, and increment 3 is proposed to split into 3a (contract and
-itinerary review) and 3b (schema extensions and API). Until the owner
-approves P2-PROP-07, the table above remains the authoritative plan.)*
+*(Annotation 2026-10-27: an extended increment sequence follows below
+(P2-PROP-07). The owner **accepted its direction in principle** on
+2026-10-27. It keeps this approved numbering: increments 2--4 keep their
+meaning, and increment 3 splits into 3a (planning-only contract and
+itinerary review, **authorized**) and 3b (schema extensions and API,
+existing gates). The rows above are unchanged.)*
 
-### Extended increment sequence (PROPOSED --- OWNER APPROVAL REQUIRED; P2-PROP-07, 2026-10-27)
+### Extended increment sequence (P2-PROP-07, 2026-10-27; direction ACCEPTED IN PRINCIPLE by the owner, increments individually gated)
 
-**Status:** every item here is a proposal. Nothing in this section is
-approved, started or authorized. Approving this sequence would approve a
-*planning structure* only. Each increment still needs its own owner
-approval of scope, gate and stopping point before work starts (CLAUDE.md
-§11, §13--§14). The phase definitions and exit criteria of Phases 2--7
+**Status (owner decisions, 2026-10-27):**
+-   **Accepted in principle:** the sequence, as a *planning structure*
+    only.
+-   **Authorized:** increment **3a**, planning only. Not started.
+-   **Not authorized:** every other increment.
+    -   2 is blocked on the open scoring decisions;
+    -   3b and 4 remain under their existing gates;
+    -   5--13 are **PROPOSED --- OWNER APPROVAL REQUIRED**.
+
+Each increment needs its own owner approval of scope, gate and stopping
+point before work starts (CLAUDE.md §11, §13--§14). The phase definitions and exit criteria of Phases 2--7
 remain authoritative. Each increment below names a **proposed home phase**,
 so this sequence adds no duplicate phase work.
 
@@ -295,21 +314,21 @@ as follows:
 
 #### Sequence, dependencies and gates
 
-| # | Increment | Proposed home phase | Depends on | Gate (separate owner approval) | Stopping point |
-|---|---|---|---|---|---|
-| 2 | Deterministic scoring foundation | 2 | P2-PROP-05 rev. 2 decisions; P2-PROP-06 scope | Scoring decisions, scope, stopping point | Draft PR with tests and CI; no merge |
-| 3a | Travel-option and itinerary contract review | 2 (schema gate) | None (planning only); may run alongside 2 if the owner authorizes it | Review scope; any schema change separately | Reviewed contract proposal and an explicit owner decision; no schema code |
-| 3b | Schema extensions and backend API *(approved P2-PROP-04 item)* | 2 | 3a decisions; API framework choice | Schema approval (D-IMPL-03); framework (new dependency) | Draft PR; no merge |
-| 4 | Minimal client/PWA *(approved P2-PROP-04 item)* | 2 | 3b | Client/PWA approach | Draft PR; no merge |
-| 5 | Constraint-aware filtering and ranking | 2 (sample data) | 2; 3a/3b (constraint and time fields) | Requirements, scope, stopping point | Draft PR with tests and CI; no merge |
-| 6 | Multi-leg resilience and risk assessment | 5 | 3a/3b (legs, connections); 7 (data) | Data, methodology, contract, scope | Later owner-approved plan |
-| 7 | Reliability data and prediction design | 3 (feasibility) and 5 | Provider feasibility register | Data sources, evaluation method, costs, terms | Design record and owner decision; no accounts or trials |
-| 8 | Baseline reliability estimates | 5 | 7; approved historical data | Data, method, validation plan | Draft PR (sample/offline data); no merge |
-| 9 | Dynamic disruption updates | 5 and 6 | 8; approved Phase 3 adapters | Data sources, refresh policy, any live access | Draft PR (simulated updates first); no merge |
-| 10 | Reliability monitoring and user alerts | 6 | 9; Phase 4 persistence and authorization | Alert rules and thresholds; no live monitoring or external notifications | Rules and design approved; implementation separate |
-| 11 | Cross-modal recovery recommendations | 6 | 5; 3b (multi-mode schedules); 8/9 signals | Scope; advisory only | Draft PR (simulated disruptions); no merge |
-| 12 | Deadline-aware recovery ranking | 6 (with 5) | 11; a validated model for any likelihood claim | Ranking rules, outcome labels, decision-time rule | Draft PR; no merge |
-| 13 | Recovery monitoring and decision alerts | 6 | 10; 12; Phase 4 | Thresholds, notification preferences, safeguards; external notifications separately | Design approved; implementation separate |
+| # | Increment | Proposed home phase | Depends on | Gate (separate owner approval) | Stopping point | Status |
+|---|---|---|---|---|---|---|
+| 2 | Deterministic scoring foundation | 2 | P2-PROP-05 rev. 2 decisions; P2-PROP-06 scope | Scoring decisions, scope, stopping point | Draft PR with tests and CI; no merge | **Blocked**: scoring decisions open; not authorized |
+| 3a | Travel-option and itinerary contract review | 2 (schema gate) | None (planning only); may run alongside 2 if the owner authorizes it | Review scope; any schema change separately | Reviewed contract proposal and an explicit owner decision; no schema code | **Planning-only authorized** (2026-10-27); not started |
+| 3b | Schema extensions and backend API *(approved P2-PROP-04 item)* | 2 | 3a decisions; API framework choice | Schema approval (D-IMPL-03); framework (new dependency) | Draft PR; no merge | Existing gates; not authorized |
+| 4 | Minimal client/PWA *(approved P2-PROP-04 item)* | 2 | 3b | Client/PWA approach | Draft PR; no merge | Existing gates; not authorized |
+| 5 | Constraint-aware filtering and ranking | 2 (sample data) | 2; 3a/3b (constraint and time fields) | Requirements, scope, stopping point | Draft PR with tests and CI; no merge | Proposed; not authorized |
+| 6 | Multi-leg resilience and risk assessment | 5 | 3a/3b (legs, connections); 7 (data) | Data, methodology, contract, scope | Later owner-approved plan | Proposed; not authorized |
+| 7 | Reliability data and prediction design | 3 (feasibility) and 5 | Provider feasibility register | Data sources, evaluation method, costs, terms | Design record and owner decision; no accounts or trials | Proposed; not authorized |
+| 8 | Baseline reliability estimates | 5 | 7; approved historical data | Data, method, validation plan | Draft PR (sample/offline data); no merge | Proposed; not authorized |
+| 9 | Dynamic disruption updates | 5 and 6 | 8; approved Phase 3 adapters | Data sources, refresh policy, any live access | Draft PR (simulated updates first); no merge | Proposed; not authorized |
+| 10 | Reliability monitoring and user alerts | 6 | 9; Phase 4 persistence and authorization | Alert rules and thresholds; no live monitoring or external notifications | Rules and design approved; implementation separate | Proposed; not authorized |
+| 11 | Cross-modal recovery recommendations | 6 | 5; 3b (multi-mode schedules); 8/9 signals | Scope; advisory only | Draft PR (simulated disruptions); no merge | Proposed; not authorized |
+| 12 | Deadline-aware recovery ranking | 6 (with 5) | 11; a validated model for any likelihood claim | Ranking rules, outcome labels, decision-time rule | Draft PR; no merge | Proposed; not authorized |
+| 13 | Recovery monitoring and decision alerts | 6 | 10; 12; Phase 4 | Thresholds, notification preferences, safeguards; external notifications separately | Design approved; implementation separate | Proposed; not authorized |
 
 #### Increment details
 
@@ -330,7 +349,22 @@ deterministic, synchronous scorer over the existing `TravelOption` contract.
 -   **Scope:** P2-PROP-06.
 
 **Increment 3a --- Travel-option and itinerary contract review**
-(planning only).
+(planning only). **Status: PLANNING-ONLY AUTHORIZED by the owner
+(2026-10-27); not started.**
+-   **Inputs:** the existing contract, query model, sample fixtures and
+    relevant tests.
+-   **Also evaluate** how departure windows, arrival deadlines,
+    cross-modal recovery requirements and risk inputs should be
+    represented.
+-   **Exclusions:**
+    -   no schema or contract change;
+    -   no source code, scoring, API or client work;
+    -   no new dependencies, live providers, paid services, credentials,
+        database operations, deployment or external booking actions.
+-   **Stopping point:** a documented contract recommendation with
+    file/field evidence and the explicit owner decisions required. Stop
+    for review; implementing the recommendation needs separate
+    authorization (3b gate).
 -   **Assess:**
     -   scheduled departure and arrival, timezone and local-date
         semantics;

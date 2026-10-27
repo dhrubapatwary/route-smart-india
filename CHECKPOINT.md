@@ -4,6 +4,35 @@ Newest entry first. Read this at the start of every session.
 
 ---
 
+## 2026-10-27: Owner decisions on the Phase 2 planning revision recorded (PR #5); CLAUDE.md committed separately (PR #6). STOPPED for owner review.
+
+**Verified (GitHub):**
+- `main` = `7bc6416`.
+- PR #5 was open and a draft, at head `79663ac` (base `7bc6416`) with 3 files; CI run 40570082287 had succeeded on `79663ac`.
+
+**Owner decisions recorded** (`DECISIONS.md`, "Owner decisions: Phase 2 planning revision"):
+1. **Accepted in principle:** the extended roadmap direction (P2-PROP-07). The approved numbering stays authoritative (3 = 3a + 3b; 4 = client; new capabilities 5--13). It is a planning structure only.
+2. **Authorized, planning only:** **increment 3a**, the contract and itinerary review. **Not started.**
+3. **Open:** P2-PROP-05 rev. 2 (scoring rules, exact bounds) and P2-PROP-06 (increment 2 scope). Equal weights are provisional.
+4. **Not authorized:** increment 2 (blocked), 3b and 4 (existing gates), and 5--13 (proposals).
+
+The normalisation wording in P2-PROP-05 rev. 2 section C was corrected to the owner-specified text (R-038).
+
+**`CLAUDE.md`:**
+- The owner's edit (the §10 "Context Compaction and Recovery" subsection, 55 lines added) is committed **exactly**: the committed diff's SHA-256 equals the original unstaged diff's.
+- It is on branch `docs/claude-md-context-recovery` (commit `b097e29`), in **draft PR #6**.
+- The working tree no longer has an unstaged `CLAUDE.md` edit.
+
+**Still pending (separate task):** the ChatGPT/Claude Code GitHub-verification responsibility note.
+
+**Next action:**
+1. Owner review of PR #5 and PR #6. Merging needs separate authorization.
+2. When the owner says to begin, increment 3a, planning only. It stops at a documented contract recommendation for owner decision.
+
+Increment 2 stays blocked until the scoring decisions and the increment 2 scope are approved.
+
+---
+
 ## 2026-10-27: Phase 2 planning revision PROPOSED (docs-only draft PR). STOPPED for owner review.
 
 **Verified (GitHub, read-only):**
@@ -39,7 +68,7 @@ No test results were added.
 1. Review this documentation PR (merging needs separate authorization).
 2. Decide P2-PROP-05 rev. 2 (A--D), including the bound values.
 3. Approve or amend P2-PROP-06 before any increment 2 work.
-4. Decide P2-PROP-07 (sequence and phase placement) and whether to authorize the 3a review.
+4. Decide P2-PROP-07 (sequence and phase placement) and whether to authorize the 3a review. *(Partly done: the direction was accepted in principle and 3a authorized, planning only; items 2--3 remain open. See the newer entry above.)*
 
 Still pending as separate tasks:
 - the `CLAUDE.md` commit decision;

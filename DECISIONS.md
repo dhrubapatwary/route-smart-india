@@ -664,7 +664,7 @@ This is a **proposal only**. No scoring code exists or is authorized. Approving 
 | Sample fixture fields | --- | `SampleFixture`: `key`, `operator`, `departure`, `duration`, `fare_inr`, `availability`, `waitlist_position`, `unavailable`, `note` (`sample.py:59-67`). |
 
 ### P2-PROP-05 rev. 2: Scoring package (supersedes nothing until approved)
-- **Status:** PROPOSED --- OWNER APPROVAL REQUIRED. P2-PROP-05 (above) is kept unchanged as history.
+- **Status:** PROPOSED --- OWNER APPROVAL REQUIRED. P2-PROP-05 (above) is kept unchanged as history. *(Annotation 2026-10-27: **still open**; the owner has not decided these rules. See "Owner decisions: Phase 2 planning revision".)*
 - **Evidence base:** a read-only computation on the Task 003 sample output (2026-10-27; recorded in the session report, not a test result):
   - the waitlisted train ranked first in 3 of 6 weight/normalisation settings;
   - with min–max normalisation, removing the last-ranked cab changed the winner;
@@ -712,7 +712,7 @@ This is a **proposal only**. No scoring code exists or is authorized. Approving 
 - **Weights:** `w_time = 1/2`, `w_cost = 1/2`. Exact rationals; each in [0, 1]; summing exactly to 1; caller-configurable; reported in every result. Neutral placeholder.
 - **Normalisation:** fixed reference ranges, `n = clamp((x − lo) / (hi − lo), 0, 1)`.
   - **Placeholder bounds:** time 0--720 min, cost ₹0--10,000, for BLR → MAA only. **Their values are unresolved and need owner input.**
-  - **Out of range:** clamped to 1 and flagged, with the raw value still shown.
+  - **Out of range:** Values below the lower bound are clamped to 0; values above the upper bound are clamped to 1. Out-of-range values are flagged, and raw values remain visible.
   - **Alternative:** min–max within the comparison set. It needs no bounds, but scores and the winner depend on which other options are present.
 - **Direction and range:** lower is better; score in [0, 1]. Not a probability, and not comparable across routes or model versions.
 - **Ties:** exact equality, then lower cost, then shorter duration, then `option_id`. Input order is irrelevant.
@@ -732,7 +732,7 @@ This is a **proposal only**. No scoring code exists or is authorized. Approving 
 - **Disclosure:** durations are terminal-to-terminal. Access, egress, boarding buffers and transfers are excluded.
 
 ### P2-PROP-06: Increment 2 scope (deterministic scoring foundation)
-- **Status:** PROPOSED --- OWNER APPROVAL REQUIRED. **Not started, not authorized.**
+- **Status:** PROPOSED --- OWNER APPROVAL REQUIRED. **Not started, not authorized.** *(Annotation 2026-10-27: **still open**, and increment 2 remains blocked.)*
 - **Scope:** as in `ROADMAP.md`, "Extended increment sequence", increment 2.
   - **Location:** `src/routesmart/scoring/` (pure, synchronous), with tests in `tests/scoring/`.
   - **Inputs:** validated `TravelOption`s, a scoring configuration, and a caller-supplied evaluation instant (no clock).
@@ -747,7 +747,7 @@ This is a **proposal only**. No scoring code exists or is authorized. Approving 
 - **Stopping point:** a draft PR, ready for owner review.
 
 ### P2-PROP-07: Extended increment sequence and phase mapping
-- **Status:** PROPOSED --- OWNER APPROVAL REQUIRED.
+- **Status:** PROPOSED --- OWNER APPROVAL REQUIRED. *(Annotation 2026-10-27: direction **ACCEPTED IN PRINCIPLE** by the owner as a planning structure; no increment is authorized by it. See "Owner decisions: Phase 2 planning revision". The open questions below remain open.)*
 - **Proposal:** increments 2--13, with the cross-cutting principles, dependencies, gates, stopping points and proposed home phases as recorded in `ROADMAP.md`, "Extended increment sequence". Approving the sequence approves a planning structure only (as P2-PROP-04 did).
 - **Open questions for the owner:**
   1. **Phase placement:** do increments 5--13 belong in the proposed home phases (2, 3, 5, 6)?
@@ -762,7 +762,7 @@ This is a **proposal only**. No scoring code exists or is authorized. Approving 
   10. **Reliability data sources** per mode (on-time performance, weather, rail status, road incidents). All are unverified, and provider feasibility must be recorded before any proposal (CLAUDE.md §4).
 
 ### P2-PROP-08: Contract and itinerary questions for increment 3a
-- **Status:** PROPOSED / OPEN --- OWNER DECISIONS REQUIRED. No schema change is proposed for implementation here.
+- **Status:** PROPOSED / OPEN --- OWNER DECISIONS REQUIRED. No schema change is proposed for implementation here. *(Annotation 2026-10-27: these questions are the input to the **planning-only increment 3a**, which the owner authorized; the answers remain owner decisions.)*
 - **Questions:**
   1. Scheduled and estimated times: separate fields, or a typed time-kind?
   2. A legs or segments model, with order, per-leg mode and operator, and per-leg times.
@@ -785,3 +785,58 @@ This is a **proposal only**. No scoring code exists or is authorized. Approving 
 
   The P2-PROP-05 status line is annotated; its original text is unchanged. ROADMAP has a new current-status block, an annotation under the approved plan table, and the "Extended increment sequence" section. CHECKPOINT has a new top entry.
   - **Unchanged:** all approval records, including P2-PROP-01..04. No code, schema, test, dependency, CI or network-isolation changes. No test results were added.
+
+## Owner decisions: Phase 2 planning revision (recorded 2026-10-27)
+
+Recorded on 2026-10-27 from the owner's decision message after review of PR #5. The proposals above keep their wording; their status lines are annotated.
+
+### 1. Roadmap direction (P2-PROP-07): ACCEPTED IN PRINCIPLE
+- **Accepted:**
+  - the existing approved increment numbering remains authoritative;
+  - increment 3 has a planning-only review stage (3a), followed by schema/API implementation (3b), subject to the applicable gates;
+  - increment 4 remains the client/PWA;
+  - the constraint-aware, reliability, disruption-forecasting, cross-modal-recovery and monitoring capabilities remain in the sequence as increments 5--13;
+  - existing phase definitions and exit criteria remain authoritative.
+- **Limit:** this is a **planning structure**, not authorization to implement any listed increment. The individual proposals, including P2-PROP-07's open questions and its phase placement, are not thereby approved.
+
+### 2. Increment 3a: AUTHORIZED (planning only)
+- **Scope:**
+  - inspect the existing contract, query model, sample fixtures and relevant tests;
+  - assess:
+    - departure/arrival semantics and timezones;
+    - scheduled vs estimated times;
+    - journey legs and connections;
+    - availability, passenger count and cost basis;
+    - provenance, freshness and risk inputs;
+  - evaluate how departure windows, arrival deadlines and cross-modal recovery requirements should be represented;
+  - document backward compatibility, migration implications, required changes, evidence, trade-offs and unresolved owner decisions;
+  - produce a recommendation for a later owner decision.
+- **Exclusions:**
+  - no schema or contract changes;
+  - no source code, scoring, API or client changes;
+  - no new dependencies, live providers, paid services or credentials;
+  - no database operations, deployment or external booking actions.
+- **Stopping point:** a documented contract recommendation with file/field evidence and explicit owner decisions required. Stop and present it for review. The recommended changes are not implemented without separate authorization.
+- **Status:** **not started.** The review was not begun in the task that recorded this decision.
+
+### 3. Increment 2: NOT AUTHORIZED (scoring decisions open)
+- **Open:** P2-PROP-05 rev. 2 and P2-PROP-06 remain **open**, pending explicit decisions on:
+  - risk labelled "not assessed" rather than given invented probabilities;
+  - availability grouping (confirmed/available, limited, unknown, waitlisted, sold out);
+  - the scoring formula and the exact normalisation bounds;
+  - out-of-range behaviour, tie-breaking, missing data, precision and model versioning;
+  - the temporary single-traveller cost assumption and its disclosures;
+  - increment 2's detailed scope and stopping point.
+- **Weights:** equal time/cost weights remain a **provisional proposal**, not a finalised decision.
+
+### 4. Still not authorized
+- increments 3b and 4 (existing gates);
+- increments 5--13 (proposals);
+- any merge of PR #5 or the separate `CLAUDE.md` PR (#6).
+
+## Changes log (Phase 2 planning revision decisions, 2026-10-27)
+- **R-038:** Recorded the owner decisions above.
+  - **Annotations:** P2-PROP-05 rev. 2 and P2-PROP-06 marked still open; P2-PROP-07 accepted in principle; P2-PROP-08 the input to the authorized 3a.
+  - **Correction (owner-specified wording, B4):** P2-PROP-05 rev. 2 section C. The earlier "clamped to 1" wording was inaccurate for values below the lower bound. It now reads "Values below the lower bound are clamped to 0; values above the upper bound are clamped to 1. Out-of-range values are flagged, and raw values remain visible." The bounds remain unresolved.
+  - **ROADMAP and CHECKPOINT:** status wording updated, including a Status column in the sequence table and the 3a authorization boundaries.
+  - **Unchanged:** P2-PROP-01..04 and all earlier approval records; `docs/TRAVEL_OPTION_CONTRACT.md`. No code, test, dependency, CI or network-isolation changes. No test results were added.
