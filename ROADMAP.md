@@ -4,7 +4,24 @@
 decisions D-PROP-01..08 on 2026-10-27 (see `DECISIONS.md`). **Phase 1
 exit was approved by the owner on 2026-10-27** (Gate 6; DECISIONS.md
 G6-2).
-**Current status (2026-10-27, after the PR #3 merge; verified against GitHub):**
+**Current status (2026-10-27, Phase 2 planning revision PROPOSED; verified against GitHub):**
+-   **`main`:** `7bc6416ded1d4f9bac5dabf011703aeef45a6b35`, the PR #4 merge
+    commit (documentation of the PR #3 merge). Post-merge CI run
+    40566118857 (`push`, `7bc6416`): success.
+-   **Completed:** Task 003 (Phase 2, increment 1) is implemented and
+    merged (PR #3, `725e266`).
+-   **Not started, not authorized:** increment 2 (scoring) and every
+    later increment.
+-   **PROPOSED --- OWNER APPROVAL REQUIRED:**
+    -   the revised scoring package (P2-PROP-05 rev. 2);
+    -   the increment 2 scope (P2-PROP-06);
+    -   the extended increment sequence 2--13 with its phase mapping
+        (P2-PROP-07; see "Extended increment sequence" under Phase 2);
+    -   the open contract and itinerary questions (P2-PROP-08).
+
+    Approving the roadmap does **not** authorize any increment.
+
+**Earlier status (2026-10-27, after the PR #3 merge; verified against GitHub; historical):**
 -   **Task 003 (Phase 2, increment 1): implemented and merged into `main`.**
     PR #3 (https://github.com/dhrubapatwary/route-smart-india/pull/3) was
     merged at 2026-10-27T19:00:23Z.
@@ -211,6 +228,270 @@ recorded scope, stopping point and owner authorization before work starts
 -   Scores are not probabilities (CLAUDE.md §8).
 -   No live providers, new dependencies, costs or deployment without
     approval (CLAUDE.md §4, §6, §11).
+
+*(Annotation 2026-10-27: an extended increment sequence is **proposed**
+below (P2-PROP-07). It keeps this approved numbering: increments 2--4 keep
+their meaning, and increment 3 is proposed to split into 3a (contract and
+itinerary review) and 3b (schema extensions and API). Until the owner
+approves P2-PROP-07, the table above remains the authoritative plan.)*
+
+### Extended increment sequence (PROPOSED --- OWNER APPROVAL REQUIRED; P2-PROP-07, 2026-10-27)
+
+**Status:** every item here is a proposal. Nothing in this section is
+approved, started or authorized. Approving this sequence would approve a
+*planning structure* only. Each increment still needs its own owner
+approval of scope, gate and stopping point before work starts (CLAUDE.md
+§11, §13--§14). The phase definitions and exit criteria of Phases 2--7
+remain authoritative. Each increment below names a **proposed home phase**,
+so this sequence adds no duplicate phase work.
+
+**Numbering (owner instruction, 2026-10-27):** the approved numbers are
+kept. Two owner briefs proposed this work with their own labels; they map
+as follows:
+
+| Owner-brief label | Roadmap increment |
+|---|---|
+| 2 Scoring foundation | **2** (unchanged) |
+| 3 Contract and itinerary review | **3a** (first stage of approved increment 3) |
+| --- (approved) schema extensions and API | **3b** |
+| --- (approved) minimal client/PWA | **4** (unchanged) |
+| 4 Constraint-aware filtering | **5** |
+| 5 Multi-leg resilience and risk | **6** |
+| 6 Reliability data and prediction design | **7** |
+| 7 Baseline reliability estimates | **8** |
+| 8 Dynamic disruption updates | **9** |
+| 9 Reliability monitoring and alerts | **10** |
+| 10 Cross-modal recovery recommendations | **11** |
+| 11 Deadline-aware recovery ranking | **12** |
+| 12 Recovery monitoring and decision alerts | **13** |
+
+#### Cross-cutting principles (apply to every increment)
+
+1.  **Hard constraints before ranking.** An option that violates a
+    required arrival deadline (or another hard constraint) is never
+    presented as feasible.
+2.  **Evidence before probabilities.** A numerical delay, arrival or
+    confirmation probability requires suitable data, a validated method
+    and explicit assumptions (CLAUDE.md §8).
+3.  **Progressive confidence.** Historical baselines, forecast-informed
+    assessments and current operational status are different evidence
+    levels, and they are labelled as such.
+4.  **Time-aware recommendations.** The whole journey counts: access to
+    the departure point, boarding buffers, connections and final transfer,
+    where the data supports them. Anything not modelled is disclosed.
+5.  **Transparent uncertainty.** Show the last-updated time, provenance,
+    missing information and the reasons a recommendation changed.
+6.  **Cross-modal recovery.** When a selected mode is at risk of missing
+    the deadline, alternatives in other modes are evaluated.
+7.  **No automatic booking actions.** Recommendations are advisory. No
+    cancellation, purchase, booking or itinerary change without separate
+    explicit authorization (CLAUDE.md §11).
+8.  **Provider governance.** Coverage, terms, quotas, costs, licensing and
+    credential requirements are verified and recorded in
+    `docs/PROVIDER_FEASIBILITY.md` before any live integration is proposed
+    (CLAUDE.md §4).
+9.  **Fail safely.** Stale, missing or insufficient data gives "unknown"
+    or "not assessed", never a claimed reliable prediction.
+
+#### Sequence, dependencies and gates
+
+| # | Increment | Proposed home phase | Depends on | Gate (separate owner approval) | Stopping point |
+|---|---|---|---|---|---|
+| 2 | Deterministic scoring foundation | 2 | P2-PROP-05 rev. 2 decisions; P2-PROP-06 scope | Scoring decisions, scope, stopping point | Draft PR with tests and CI; no merge |
+| 3a | Travel-option and itinerary contract review | 2 (schema gate) | None (planning only); may run alongside 2 if the owner authorizes it | Review scope; any schema change separately | Reviewed contract proposal and an explicit owner decision; no schema code |
+| 3b | Schema extensions and backend API *(approved P2-PROP-04 item)* | 2 | 3a decisions; API framework choice | Schema approval (D-IMPL-03); framework (new dependency) | Draft PR; no merge |
+| 4 | Minimal client/PWA *(approved P2-PROP-04 item)* | 2 | 3b | Client/PWA approach | Draft PR; no merge |
+| 5 | Constraint-aware filtering and ranking | 2 (sample data) | 2; 3a/3b (constraint and time fields) | Requirements, scope, stopping point | Draft PR with tests and CI; no merge |
+| 6 | Multi-leg resilience and risk assessment | 5 | 3a/3b (legs, connections); 7 (data) | Data, methodology, contract, scope | Later owner-approved plan |
+| 7 | Reliability data and prediction design | 3 (feasibility) and 5 | Provider feasibility register | Data sources, evaluation method, costs, terms | Design record and owner decision; no accounts or trials |
+| 8 | Baseline reliability estimates | 5 | 7; approved historical data | Data, method, validation plan | Draft PR (sample/offline data); no merge |
+| 9 | Dynamic disruption updates | 5 and 6 | 8; approved Phase 3 adapters | Data sources, refresh policy, any live access | Draft PR (simulated updates first); no merge |
+| 10 | Reliability monitoring and user alerts | 6 | 9; Phase 4 persistence and authorization | Alert rules and thresholds; no live monitoring or external notifications | Rules and design approved; implementation separate |
+| 11 | Cross-modal recovery recommendations | 6 | 5; 3b (multi-mode schedules); 8/9 signals | Scope; advisory only | Draft PR (simulated disruptions); no merge |
+| 12 | Deadline-aware recovery ranking | 6 (with 5) | 11; a validated model for any likelihood claim | Ranking rules, outcome labels, decision-time rule | Draft PR; no merge |
+| 13 | Recovery monitoring and decision alerts | 6 | 10; 12; Phase 4 | Thresholds, notification preferences, safeguards; external notifications separately | Design approved; implementation separate |
+
+#### Increment details
+
+**Increment 2 --- Deterministic scoring foundation.** A pure,
+deterministic, synchronous scorer over the existing `TravelOption` contract.
+-   **Applies only** the approved weights, normalisation, missing-data,
+    availability-tier and tie-breaking rules (P2-PROP-05 rev. 2).
+-   **Explains** component scores, raw values, weights and limitations in
+    every result.
+-   **Arithmetic:** exact arithmetic for ranking if approved; rounding for
+    display only.
+-   **Tests:** determinism, input-order independence, score bounds,
+    ranking invariants, invalid input and missing data.
+-   **Integration:** runs on the existing sample providers with no network
+    access.
+-   **Exclusions:** schema changes; API, UI/PWA, database, live providers,
+    credentials, paid services or deployment; any numerical risk scoring.
+-   **Scope:** P2-PROP-06.
+
+**Increment 3a --- Travel-option and itinerary contract review**
+(planning only).
+-   **Assess:**
+    -   scheduled departure and arrival, timezone and local-date
+        semantics;
+    -   scheduled vs estimated times;
+    -   journey legs and their order;
+    -   connection locations, connection duration, minimum connection
+        times where known, and overnight journeys;
+    -   protected vs separate-ticket connections, where reliable data
+        supports them;
+    -   availability and conditional booking states;
+    -   passenger count, cost basis, currency, fees and comparability;
+    -   provenance, freshness, and explicit unknown or not-applicable
+        values;
+    -   where user constraints belong: the query, a separate constraints
+        model, or the scoring configuration;
+    -   backward compatibility and migration (schema version 1 → 2).
+-   **Output:** a recommendation with the required changes, evidence,
+    trade-offs and open owner decisions (P2-PROP-08).
+-   **No contract or schema change in this increment.** If existing
+    assumptions would need to be discarded, stop and ask.
+
+**Increment 3b --- Schema extensions and backend API.** Unchanged from
+the approved plan. It now depends on the 3a decisions.
+
+**Increment 4 --- Minimal client/PWA.** Unchanged from the approved plan.
+
+**Increment 5 --- Constraint-aware filtering and ranking.**
+-   **Candidate constraints:**
+    -   earliest and latest permitted departure;
+    -   required arrival deadline;
+    -   travel date and timezone;
+    -   same-day arrival vs permitted overnight travel;
+    -   connection and minimum-transfer requirements, if the approved
+        contract represents them;
+    -   other supported hard constraints.
+-   **Behaviour:**
+    -   Hard constraints are applied **before** scoring, and a violating
+        option is never ranked as feasible.
+    -   Every exclusion is explained. Violating alternatives may be shown
+        separately, labelled infeasible for the stated requirements.
+    -   **Road:** estimated arrival = an explicitly supplied departure +
+        the estimated duration, always labelled an estimate and never a
+        scheduled time.
+-   It must not assume fields that the approved contract lacks.
+
+**Increment 6 --- Multi-leg itinerary resilience and risk assessment.**
+-   **Evaluates** the data and methodology for connection-related risk:
+    -   number of legs and connections;
+    -   connection buffer vs a known minimum connection time;
+    -   protected vs separate-ticket connections;
+    -   schedule changes, cancellation information and recovery options
+        where reliable data exists;
+    -   data freshness and confidence.
+-   **Rules:**
+    -   do not assume leg delays are independent;
+    -   do not derive itinerary probabilities by adding leg probabilities;
+    -   no numerical risk without an approved method, suitable data and
+        explicit assumptions.
+
+    Until then, only transparent indicators that the data supports are
+    shown; otherwise the label is "unknown" or "not assessed".
+
+**Increment 7 --- Reliability data and prediction design** (design only).
+-   **Defines**, per mode (air, rail, road):
+    -   data requirements, data quality and historical coverage;
+    -   refresh frequency;
+    -   provider feasibility (register entries with evidence);
+    -   the model evaluation approach;
+    -   cost, terms and limitations.
+-   **Not authorized:** accounts, trials, subscriptions or live calls
+    (CLAUDE.md §4, §11).
+
+**Increment 8 --- Baseline reliability estimates.** Develop and validate
+baselines from approved historical data, using sample or offline data
+first:
+-   **Air:** route, airport and flight on-time performance; historical
+    delay patterns; seasonal effects; airport weather and disruption
+    context.
+-   **Rail:** train and route on-time performance; historical delays;
+    weather along the route; service disruptions where reliable data
+    exists.
+-   **Road:** route conditions; weather along the route;
+    closures/incidents where available; historical journey-time
+    variability.
+
+Outputs are evidence-labelled baselines. They are not probabilities
+unless calibrated and validated. No live integration without approval.
+
+**Increment 9 --- Dynamic disruption updates.** Assessments are refined
+as the travel date approaches.
+-   **Air:**
+    -   before flight-specific operational data exists, use historical
+        performance and relevant weather forecasts;
+    -   when available, add flight status, assigned and inbound aircraft
+        rotation, airport conditions and updated forecasts;
+    -   the roughly 24--48-hour window is treated as a **possible
+        data-availability window**, not a guaranteed assignment time or
+        a universal rule.
+-   **Rail and road:** refresh weather, operational disruptions, service
+    status and road conditions as reliable data becomes available.
+-   **Always:**
+    -   recalculate only when new information arrives;
+    -   show the assessment's timestamp and evidence;
+    -   distinguish confirmed events, forecasts and historical baselines.
+
+**Increment 10 --- Reliability monitoring and user alerts.**
+-   **Shows** material changes in risk, expected arrival and confidence.
+-   **Notification rules:** opt-in rules and thresholds are defined only
+    after owner approval.
+-   **Not authorized:** scheduled live monitoring or external
+    notifications in this increment (Phase 6 gate).
+
+**Increment 11 --- Cross-modal recovery recommendations.** Triggered when
+the selected journey is disrupted, or when its chance of meeting the
+deadline deteriorates.
+-   **Reassesses** feasible alternatives across air, rail, bus, cab and
+    self-drive.
+-   **Checks** departure schedules, remaining booking and boarding time,
+    availability, transfer times, connection feasibility and arrival
+    constraints.
+-   **Compares** alternatives against the required arrival time, not just
+    the scheduled duration.
+-   **Shows** options that may arrive on time or close to the deadline,
+    with disclosed uncertainty, the reasons, and any unverified
+    assumptions.
+-   **Advisory only:** the original journey and the recovery plan stay
+    separate. RouteSmart never cancels, purchases or changes a booking.
+
+**Increment 12 --- Deadline-aware recovery ranking.**
+-   **Ranks by:**
+    -   feasibility against the deadline;
+    -   expected arrival and its uncertainty;
+    -   likelihood of meeting the deadline, **only with a validated
+        model**;
+    -   transfer, boarding and connection constraints;
+    -   incremental cost and availability;
+    -   reliability of the supporting data.
+-   **Outcome labels:** "likely to meet the deadline", "may arrive close
+    to the deadline" and "unlikely to meet it", only when the evidence
+    supports the label. No manufactured percentages.
+-   **Latest sensible decision time:** computed only when schedules,
+    availability, transfer and boarding data are reliable enough, with
+    its assumptions stated.
+
+**Increment 13 --- Recovery monitoring and decision alerts.**
+-   **Reassesses** the selected journey and its alternatives as conditions
+    change.
+-   **Defines:**
+    -   what counts as material deterioration, or a newly viable
+        alternative;
+    -   alert thresholds and notification preferences;
+    -   stale-data handling;
+    -   safeguards against repeated or contradictory alerts.
+-   **Approval:** implementation and external notifications need separate
+    approval.
+
+**Known contract gaps** (evidence and questions in `DECISIONS.md`,
+P2-PROP-08): schema version 1 has no legs, connections, scheduled-vs-
+estimated distinction, passenger count, cost basis or risk inputs, and the
+query has no departure-window or arrival-deadline fields. Increments 5,
+6 and 11--13 cannot start until 3a/3b resolve the relevant gaps.
 
 **Stopping conditions for every increment:** stop and ask if work would
 need any of the following:

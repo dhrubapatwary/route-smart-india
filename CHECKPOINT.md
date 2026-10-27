@@ -4,6 +4,49 @@ Newest entry first. Read this at the start of every session.
 
 ---
 
+## 2026-10-27: Phase 2 planning revision PROPOSED (docs-only draft PR). STOPPED for owner review.
+
+**Verified (GitHub, read-only):**
+- `main` = `origin/main` = `7bc6416ded1d4f9bac5dabf011703aeef45a6b35`, the merge commit of PR #4.
+- PRs #1 to #4 are merged; no other PRs exist. Post-merge CI run 40566118857 (`push`, `7bc6416`) succeeded.
+- The local working tree had only the owner's unstaged `CLAUDE.md` edit. It is identical in `019ba26` and `7bc6416`, so it was carried over unchanged to the new branch, and not staged.
+
+**State:**
+- **Task 003 (increment 1):** complete and merged (PR #3, `725e266`).
+- **Increment 2 (scoring):** **not started, not authorized.**
+
+**Proposed in this update** (all PROPOSED --- OWNER APPROVAL REQUIRED; `DECISIONS.md`, "Proposed: Phase 2 planning revision"):
+- **Contract evidence table:**
+  - schema v1 has departure/arrival/duration/availability/provenance;
+  - it has **no** legs or connections, scheduled-vs-estimated distinction, passenger count, cost basis or risk inputs;
+  - the query has **no** time constraints.
+
+  A multi-leg flight cannot be represented structurally.
+- **P2-PROP-05 rev. 2:** scoring package A--D (risk not assessed; availability groups; weights and fixed-range normalisation with placeholder bounds; cost-basis and duration disclosures).
+- **P2-PROP-06:** increment 2 scope.
+- **P2-PROP-07:** extended increment sequence 2--13, with cross-cutting principles, dependencies, gates, stopping points and proposed home phases, plus 10 open questions.
+- **P2-PROP-08:** contract and itinerary questions for increment 3a.
+- **Owner instruction (2026-10-27):** keep the approved numbering. So 3 splits into 3a/3b, 4 stays the client, and the new briefs' increments 4--12 become 5--13.
+
+**Unchanged:**
+- approval records;
+- `docs/TRAVEL_OPTION_CONTRACT.md`;
+- code, schema, tests, dependencies, CI and network isolation.
+
+No test results were added.
+
+**Next authorized decision (owner):**
+1. Review this documentation PR (merging needs separate authorization).
+2. Decide P2-PROP-05 rev. 2 (A--D), including the bound values.
+3. Approve or amend P2-PROP-06 before any increment 2 work.
+4. Decide P2-PROP-07 (sequence and phase placement) and whether to authorize the 3a review.
+
+Still pending as separate tasks:
+- the `CLAUDE.md` commit decision;
+- the ChatGPT/Claude Code GitHub-verification responsibility note.
+
+---
+
 ## 2026-10-27: Task 003 merged (PR #3); post-merge documentation on a draft PR. STOPPED for owner review.
 
 **Verified on GitHub** (read-only `gh api` / `gh run view`):
@@ -36,7 +79,7 @@ Newest entry first. Read this at the start of every session.
 - the GitHub-verification responsibility note for `CLAUDE.md` (ChatGPT/Claude Code).
 
 **Next authorized decision (owner):**
-1. Review and merge this documentation PR.
+1. Review and merge this documentation PR. *(Done: PR #4 was merged as `7bc6416`; see the newer entry above.)*
 2. Resolve P2-PROP-05.
 3. Approve increment 2's scope and stopping point before any implementation.
 
