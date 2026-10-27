@@ -4,9 +4,54 @@ Newest entry first. Read this at the start of every session.
 
 ---
 
+## 2026-10-27: PR #1 merged into `main`; post-merge CI passed. Post-merge documentation reconciliation. STOPPED.
+
+**Phase:** **Phase 1 exit approved by the owner on 2026-10-27** (DECISIONS.md G6-2), and the Phase 1 work is **merged into `main`**.
+
+**Merge (separate owner authorization, 2026-10-27):**
+- **PR #1:** https://github.com/dhrubapatwary/route-smart-india/pull/1, **MERGED** at 2026-10-27T17:45:05Z. It was marked ready from draft for the merge. Merge method: merge commit, which preserves the four reviewed commits.
+- **Merge commit / `main`:** `baa94234b90007bf5188326a409dcc3cc4f86d8c`. Parents: `2b302e0` (previous `main`) and `34deb8c` (reviewed PR head). **Its tree is identical to `34deb8c`**, and `43e6966`, `b64cb17`, `8bcc143` and `34deb8c` are all in `main`'s history.
+- **Feature branch:** `feature/task-002-foundation` was kept (repository setting `delete_branch_on_merge=false`).
+
+**CI:**
+
+| Run | Commit | Event | Result |
+|---|---|---|---|
+| 40551958918 | PR head `34deb8c` | `pull_request` | success |
+| **40553520066** | **`main` @ `baa9423`** | `push` | **success** (17:45:07Z → 17:47:23Z); 0 failed steps |
+
+Run 40553520066 details (from its job log):
+- two-stage locked install (pip 26.2.1 → 26.2.2); `check_lock` (52 pins), `.gitignore`, format, mypy, bandit and pip-audit all passed;
+- `isolation path: network namespace via sudo (GitHub Actions opt-in); privileges dropped to uid 1001 by setpriv`;
+- `namespace verified (lo only; IPv4/IPv6 unreachable) … uid=1001 euid=1001 gid=1001`;
+- **`331 passed, 1 deselected`**: `test_offline_script.py` 34 passed, `test_offline_isolation.py` 1 passed;
+- 0 failures or skips; no credential patterns in the log.
+
+**Accepted limitations (unchanged):**
+- A real refusal on the GitHub runner was **not** demonstrated; the D-IMPL-08 evidence was accepted under G6-1.
+- The unprivileged namespace path remains **unverified** on GitHub.
+- The CI evidence comes from observed runs on one runner image; it is not production sandbox certification.
+- Pattern-based redaction; `sanitize_url` gaps; direct `model_construct`/`model_copy(update=…)` bypass; test coverage not measured.
+
+**Repository observations (owner items; no settings changed):**
+- `main` branch protection is unchanged: **not protected** (R6). It is not part of this work.
+- The repository is public (R5).
+- The GitHub-generated merge commit records the account's primary e-mail address as its author, not the no-reply address used by the reviewed commits. It is now in public history. Any change, such as GitHub's "Keep my email addresses private" option for future merges, is an owner decision.
+
+**This documentation update:**
+- Made on branch `docs/post-merge-phase1-status` from `origin/main` (`baa9423`), per R4.
+- Opened as a PR against `main`. **Not merged**; merging needs separate owner authorization.
+- Its own CI result is reported in that PR.
+
+**Next actions:**
+1. Owner review of the documentation PR, and a separate merge decision.
+2. **Before any Task 003 work:** record Task 003's scope and stopping point in `ROADMAP.md` (Task log) and `CHECKPOINT.md`, and obtain its required owner authorization. **Task 003 has not started and remains blocked until then** (G6-4).
+
+---
+
 ## 2026-10-27: Phase 1 exit APPROVED by the owner (Gate 6 decisions recorded). STOPPED for owner review.
 
-**Phase:** **Phase 1 exit approved by the owner on 2026-10-27** (DECISIONS.md, "Owner decisions: Gate 6", G6-2). The Phase 1 work lives on `feature/task-002-foundation` in draft PR #1 and is **not merged into `main`**.
+**Phase:** **Phase 1 exit approved by the owner on 2026-10-27** (DECISIONS.md, "Owner decisions: Gate 6", G6-2). The Phase 1 work lives on `feature/task-002-foundation` in draft PR #1 and is **not merged into `main`**. *(As of this entry. Merged 2026-10-27 as `baa94234b90007bf5188326a409dcc3cc4f86d8c`; see the newer entry above.)*
 
 **Owner decisions recorded (2026-10-27):**
 - **G6-1, D-IMPL-08 CI evidence: accepted.**
@@ -33,11 +78,11 @@ Run 40521272209 details:
 - `namespace verified (lo only; IPv4/IPv6 unreachable) … uid=1001 euid=1001 gid=1001`;
 - `331 passed, 1 deselected`; `test_offline_script.py` 34 passed, `test_offline_isolation.py` 1 passed; 0 failed or skipped; no credential patterns.
 
-**PR #1:** https://github.com/dhrubapatwary/route-smart-india/pull/1, **open, draft**, base `main`. **Merge: pending separate owner authorization.**
+**PR #1:** https://github.com/dhrubapatwary/route-smart-india/pull/1, **open, draft**, base `main`. **Merge: pending separate owner authorization.** *(As of this entry. The owner authorized the merge and PR #1 was merged at 2026-10-27T17:45:05Z; see the newer entry above.)*
 
 **Next actions:**
-1. Confirm the CI run triggered by this documentation commit completes successfully (PR #1 checks).
-2. **Owner:** decide on merge authorization for PR #1. It is separate, and only after step 1 succeeds.
+1. Confirm the CI run triggered by this documentation commit completes successfully (PR #1 checks). *(Done: run 40551958918 on `34deb8c`, success.)*
+2. **Owner:** decide on merge authorization for PR #1. It is separate, and only after step 1 succeeds. *(Done: authorized and merged on 2026-10-27; see the newer entry above.)*
 3. **Before any Task 003 work:** record Task 003's scope and stopping point in `ROADMAP.md` (Task log) and `CHECKPOINT.md`, and obtain its required owner authorization. **Task 003 has not started and remains blocked until then.**
 
 **Accepted limitations:**

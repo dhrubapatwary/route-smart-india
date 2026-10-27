@@ -473,10 +473,11 @@ These were recorded on 2026-10-27 from the owner's Gate 6 decision message, base
   - the completed Gate 6 review;
   - the verified CI result on commit `8bcc143f57e4d81bae1466ee6844e8ba70822120` (GitHub Actions run 40521272209, success);
   - acceptance of the D-IMPL-08 evidence interpretation in G6-1.
-- **Location of the work:** Phase 1 artefacts remain on `feature/task-002-foundation` in draft PR #1. **They are not merged into `main`.**
+- **Location of the work:** Phase 1 artefacts remain on `feature/task-002-foundation` in draft PR #1. **They are not merged into `main`.** *(As of this decision. Merged 2026-10-27 as `baa94234b90007bf5188326a409dcc3cc4f86d8c` under a separate owner authorization; see R-033.)*
 
 ### G6-3: PR #1 merge: NOT authorized by this decision
 - Merge authorization is separate. It must be obtained explicitly after the CI run on the final documentation commit succeeds.
+- *Subsequent event (2026-10-27):* after run 40551958918 on `34deb8c` succeeded, the owner separately authorized the merge, and PR #1 was merged; see R-033. This decision record itself is unchanged.
 
 ### G6-4: Task 003: not started
 - Task 003 has not started.
@@ -487,3 +488,11 @@ These were recorded on 2026-10-27 from the owner's Gate 6 decision message, base
   - **Status notes:** the earlier "open, owner decision required" note (D-IMPL-08 Gate 6 assessment) is marked as resolved, and an owner-acceptance bullet was added to the D-IMPL-08 current status.
   - **Other files:** CHECKPOINT, ROADMAP, TEST_RESULTS and the README status line were updated.
   - **Unchanged:** decision wording, conditions and approval records. There are no code, test, script, workflow or dependency changes.
+
+## Changes log (post-merge, 2026-10-27)
+- **R-033:** Recorded the PR #1 merge and the post-merge CI result.
+  - **Merge:** separate owner authorization (2026-10-27) to merge PR #1 only. Merged at 17:45:05Z with a merge commit, `baa94234b90007bf5188326a409dcc3cc4f86d8c` (parents `2b302e0` and `34deb8c`; tree identical to the reviewed head `34deb8c`).
+  - **Post-merge CI:** run 40553520066 on `main` succeeded, with 331 passed and 1 deselected, and the same namespace evidence: sudo path, uid/euid/gid 1001, lo only, IPv4/IPv6 unreachable.
+  - **Annotations:** G6-2's "not merged" statement and G6-3 are annotated, with their wording unchanged. CHECKPOINT, ROADMAP, README and TEST_RESULTS were updated.
+  - **Unchanged:** approval records and the original D-IMPL-08 wording. No code, test, script, workflow, dependency or settings changes.
+  - **Unchanged limitations:** a real refusal on the runner was not demonstrated, and the unprivileged path remains unverified on GitHub.
