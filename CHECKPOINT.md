@@ -4,6 +4,44 @@ Newest entry first. Read this at the start of every session.
 
 ---
 
+## 2026-10-27: Task 003 merged (PR #3); post-merge documentation on a draft PR. STOPPED for owner review.
+
+**Verified on GitHub** (read-only `gh api` / `gh run view`):
+- **PR #3:** closed and **merged** at 2026-10-27T19:00:23Z by the owner's account.
+  - Head: `5aea0c095272e7ff88845bcd8ba7f5ee131c302e`.
+  - Base before the merge: `3510aded7a90a727b29c1c120cf6de3072b343f8`.
+  - Merge commit: `725e2660be8fca45021b8a75c5d623337706cfe4`, with parents `3510ade` and `5aea0c0`. Its tree equals `5aea0c0^{tree}`, and it was authored with a GitHub no-reply address.
+- **`origin/main`:** `725e266`.
+- **CI:** each run is evidence for its own commit only; details are in `TEST_RESULTS.md`.
+  - Run **40563608783** (`pull_request`) on the PR head `5aea0c0`: success, 427 passed.
+  - Run **40565168769** (`push`) on the merge commit `725e266`: success, 427 passed, 0 failed steps.
+
+**Phase 2 position:**
+- **Increment 1 (Task 003):** complete as a merged implementation increment.
+- **Increment 2 (scoring): not started and not authorized.** The scoring model is **P2-PROP-05, PROPOSED**. Its four open questions are unresolved:
+  1. risk weighting before schema support;
+  2. whether waitlisted rail is ranked;
+  3. default weights;
+  4. min–max vs fixed normalisation ranges.
+- Approval to merge PR #3 is **not** approval of any later increment.
+
+**This documentation update:**
+- **Branch:** `docs/post-merge-task-003-status`, created from `origin/main` @ `725e266`.
+- **Files:** ROADMAP, CHECKPOINT, TEST_RESULTS, DECISIONS (changes log R-036 only) and the README status line. Documentation only.
+- **Draft PR:** for owner review; **no merge** without separate authorization.
+- **`CLAUDE.md`:** the owner's unstaged edit was carried over unchanged when the branch was switched (the file is identical in `5aea0c0` and `725e266`). It was not staged or committed.
+
+**Pending, separately authorized tasks:**
+- the `CLAUDE.md` commit decision;
+- the GitHub-verification responsibility note for `CLAUDE.md` (ChatGPT/Claude Code).
+
+**Next authorized decision (owner):**
+1. Review and merge this documentation PR.
+2. Resolve P2-PROP-05.
+3. Approve increment 2's scope and stopping point before any implementation.
+
+---
+
 ## 2026-10-27: Task 003 review remediation on PR #3 (draft). STOPPED for owner review.
 
 **Recovery check (CLAUDE.md §10):**
@@ -26,7 +64,7 @@ Newest entry first. Read this at the start of every session.
 
 No scoring and no increment 2.
 
-**Next action:** owner review of updated draft PR #3. No merge, and no increment 2, without separate explicit authorization. `CLAUDE.md` (unstaged) still awaits a separate commit decision.
+**Next action:** owner review of updated draft PR #3. No merge, and no increment 2, without separate explicit authorization. `CLAUDE.md` (unstaged) still awaits a separate commit decision. *(Done: PR #3 was reviewed, corrected in `5aea0c0`, and merged as `725e266`; see the newer entry above. The `CLAUDE.md` decision is still pending.)*
 
 ---
 

@@ -619,3 +619,16 @@ This is a **proposal only**. No scoring code exists or is authorized. Approving 
   - Added the **P2-PROP-05** scoring-model proposal (PROPOSED only).
   - Task 003 implementation is on `feature/task-003-sample-providers`: `src/routesmart/providers/` plus tests. No schema change and no new dependency.
   - **Unchanged:** all earlier approval records.
+
+## Changes log (post-merge Task 003, 2026-10-27)
+- **R-036:** Recorded the PR #3 merge (Task 003, Phase 2 increment 1).
+  - **Merge:** merged 2026-10-27T19:00:23Z. Final head `5aea0c095272e7ff88845bcd8ba7f5ee131c302e`; merge commit `725e2660be8fca45021b8a75c5d623337706cfe4` (parents `3510ade` and `5aea0c0`; tree identical to the head).
+  - **CI:**
+    - Run 40563608783 on the PR head succeeded.
+    - Push run 40565168769 on the merge commit succeeded.
+    - Each run is evidence for its own commit only.
+  - **Unchanged:**
+    - P2-PROP-05 remains **PROPOSED**, with its four open questions unresolved;
+    - the approval records and proposal wording of P2-PROP-01..04.
+  - **Merge approval is not increment 2 approval.** Increment 2 needs the scoring decisions and separate scope approval.
+  - **Updated:** ROADMAP, CHECKPOINT, TEST_RESULTS and the README status line. No code, test, script, workflow, dependency or settings changes.

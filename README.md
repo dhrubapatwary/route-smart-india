@@ -2,7 +2,7 @@
 
 RouteSmart India is a risk-aware travel planning agent. It compares flight, rail, and road options on time, cost, and risk, and explains its recommendations. The pilot route is Bengaluru (BLR) → Chennai (MAA).
 
-**Status:** Phase 1 (foundation) exit was **approved by the owner on 2026-10-27**, and the work is **merged into `main`**: PR #1, merge commit `baa94234b90007bf5188326a409dcc3cc4f86d8c`. Post-merge CI passed (see [CHECKPOINT.md](CHECKPOINT.md)). Task 003 has not started.
+**Status:** Phase 1 (foundation) exit was **approved by the owner on 2026-10-27**, and the work is **merged into `main`**: PR #1, merge commit `baa94234b90007bf5188326a409dcc3cc4f86d8c`. Post-merge CI passed (see [CHECKPOINT.md](CHECKPOINT.md)). **Task 003** (Phase 2, increment 1: deterministic sample-data option providers) is **merged** via PR #3 (merge commit `725e2660be8fca45021b8a75c5d623337706cfe4`). Phase 2 increment 2 has not started and needs owner approval.
 - Task 002 added the tooling, the shared travel-option contract and a logging helper.
 - There are no live provider integrations. Development uses sample data only.
 
