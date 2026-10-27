@@ -849,3 +849,174 @@ test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[40
 - A real refusal by the script on the GitHub runner was **not** demonstrated; the D-IMPL-08 evidence was accepted under G6-1.
 - The unprivileged namespace path remains **unverified** on GitHub.
 - The evidence covers the observed runs only; it is not production sandbox certification.
+
+---
+
+## 2026-10-27: Post-merge CI on `main` after PR #2: run 40555092439
+
+**Context**
+- PR #2 (post-merge documentation reconciliation) was merged at 2026-10-27T17:55:15Z.
+- Merge commit `3510aded7a90a727b29c1c120cf6de3072b343f8`: parents `baa9423` and `d6c0eb9`, tree identical to the reviewed PR head `d6c0eb9`.
+- The PR head run 40554557393 (`d6c0eb9`) succeeded before the merge.
+- **Verification:** `gh run view 40555092439 --json …` and the job log via the jobs API (474 lines). Read-only; re-checked at the start of Phase 2 planning.
+
+**Run 40555092439**, https://github.com/dhrubapatwary/route-smart-india/actions/runs/40555092439
+- **Run:** event `push`; `main` @ `3510aded7a90a727b29c1c120cf6de3072b343f8`; **success** (17:55:18Z → 17:55:51Z); 0 non-success steps. It was the most recent workflow run in the repository at verification time.
+- **Install and checks:**
+  - two-stage locked install (stage 1 pip 26.2.1, stage 2 pinned pip 26.2.2);
+  - `check-lock: ok (52 pins; lock matches dev.txt exactly)`
+  - `check-gitignore: ok (6 visible, 8 ignored)`
+  - `14 files already formatted`
+  - `Success: no issues found in 14 source files`
+  - bandit `No issues identified.`; pip-audit `No known vulnerabilities found`
+- **Isolation:**
+  - `isolation path: network namespace via sudo (GitHub Actions opt-in); privileges dropped to uid 1001 by setpriv`
+  - `namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[4026532268] pid=2615 uid=1001 euid=1001 gid=1001`
+- **Tests:** `331 passed, 1 deselected in 1.62s`; `test_offline_script.py` 34 passed, `test_offline_isolation.py` 1 passed; 0 failed or skipped.
+- **Log hygiene:** no `##[error]` lines and no credential patterns.
+
+**Limitations (unchanged):**
+- A real refusal on the runner was not demonstrated (G6-1).
+- The unprivileged namespace path remains unverified on GitHub.
+- The evidence covers the observed runs only.
+
+---
+
+## 2026-10-27: Task 003 local validation (`feature/task-003-sample-providers`)
+
+**Context**
+- **Branch:** `feature/task-003-sample-providers` from `main` @ `3510aded7a90a727b29c1c120cf6de3072b343f8`; uncommitted working tree at the time of the run.
+- **Environment:** venv `route_smart_env` (Python 3.13.5); Linux; local machine. No live providers, credentials or network-dependent tests.
+- **Scope:** new package `src/routesmart/providers/` and tests `tests/providers/` (76 tests per `pytest --collect-only`: query 33, sample providers 17, collector 26).
+- **Unit vs mocked integration:** query and sample-provider tests are unit tests. Collector tests run the real sample providers alongside in-process fake providers (mocked integration). No E2E or live tests exist for this task.
+
+**Commands and actual results** (all exit 0 except where noted)
+
+| Command | Result |
+|---|---|
+| `ruff format src tests scripts` | `22 files left unchanged` (after one earlier reformat of a new test file) |
+| `ruff check src tests scripts` | `All checks passed!` Five findings in the new code were fixed rather than suppressed: ASYNC109 (the parameter was renamed `provider_timeout`), S105 (a test constant was renamed) and SIM300. |
+| `mypy` | `Success: no issues found in 22 source files` |
+| `python -m pytest -q` | `406 passed, 1 skipped, 1 deselected` (the skip is `test_offline_isolation.py`, which runs only under the offline script) |
+| `python -m pytest -q -p no:cacheprovider --import-mode=importlib` | `406 passed, 1 skipped, 1 deselected` |
+| `scripts/test-offline.sh -q` | unprivileged user+network namespace (uid 1000; no root); `namespace verified (lo only; IPv4/IPv6 unreachable)`; `407 passed, 1 deselected` |
+| `bandit -c pyproject.toml -r src` | `No issues identified.` 1012 lines of code |
+| `pip-audit --disable-pip --require-hashes -r requirements/dev.lock.txt` | `No known vulnerabilities found` |
+| `pip-audit` (environment) | `No known vulnerabilities found` |
+| `pip check` | `No broken requirements found.` |
+| `python scripts/check_lock.py` | `check-lock: ok (52 pins; lock matches dev.txt exactly)`. This resolves package metadata from the index (read-only network use by the check itself; not a test). |
+| `scripts/check-gitignore.sh` | `check-gitignore: ok (6 visible, 8 ignored)` |
+| `git diff --check` | no output (clean) |
+
+**Additional, outside the established check scope**
+- An ad hoc `bandit -c pyproject.toml -r src scripts` exited 1 with 2 **Low** findings, both in the pre-existing, unchanged `scripts/check_lock.py`: B404 (subprocess import) and B603 (`subprocess.run` with a fixed argument list, no shell).
+- These are not introduced by Task 003. The established command (CI and Gate 3) scans `src` only.
+- The findings were not suppressed. Whether to scan `scripts/` is an open owner question, not changed here.
+
+**Not run here**
+- actionlint and shellcheck: no workflow or shell script changed.
+- CI: it runs on the draft PR after push. That result is reported separately and is not claimed here.
+
+**Network**
+- The session network guard was active for every pytest run.
+- The offline script additionally ran the suite in a verified namespace.
+- The sample providers perform no I/O.
+
+---
+
+## 2026-10-27: Task 003 review remediation, local validation (`feature/task-003-sample-providers`)
+
+**Context**
+- **Base:** remediation on top of reviewed commit `0bc18c72ac68766076f6705471f4016cc7a9e26a` (PR #3, draft); merge base with `main` is `3510ade`.
+- **Environment:** venv `route_smart_env` (Python 3.13.5); local Linux machine. No live providers or credentials.
+- **Unrelated work:** the unstaged `CLAUDE.md` edit was present and was not touched.
+
+**Findings addressed**
+
+1. **Collector accepted unvalidated `TravelOption` instances** (`collector.py`).
+   - **Problem:** `model_construct()` instances passed the type and mode checks.
+   - **Fix:** each returned option is now revalidated with `TravelOption.model_validate` (the contract's `revalidate_instances="always"`), and the revalidated copies are returned. A `ValidationError`, a wrong mode or a non-option item gives `error` / `InvalidProviderOutput`.
+   - **Isolation:** output checking now runs inside its own exception boundary, so output that raises while it is being checked stays isolated to its provider. Only the outcome type is logged; no validation message is logged.
+2. **Nested fixture mappings were mutable** (`sample.py`).
+   - **Fix:** `SampleFixture.__post_init__` copies `unavailable` into the contract's existing read-only `FrozenMapping`.
+   - **Other fields:** `str`, `time`, `timedelta`, enum and `int` values are already immutable. The outer table is a `MappingProxyType` of tuples.
+   - **Boundary:** `build_sample_option` passes an explicit `dict` copy to the contract.
+   - **Fixture values are unchanged.**
+3. **`max_concurrency` accepted non-integers** (`collector.py`).
+   - **Fix:** `max_concurrency` must now be a non-bool `int` ≥ 1. Otherwise `ValueError("max_concurrency must be an integer >= 1")` is raised, with no coercion.
+
+**Regression tests** (`tests/providers/`: 96 tests, up from 76; per-file counts from `pytest --collect-only`: collector 41, query 33, sample providers 22)
+- **Collector:**
+  - five invalid `model_construct()` variants (same endpoints, undeclared missing value, waitlist without `waitlisted`, empty id, wrong nested provenance type) are rejected, while a sample rail provider in the same run still succeeds;
+  - a constructed option missing a required field is rejected;
+  - a constructed option with valid data is accepted as a validated copy;
+  - an output sequence that raises while it is read is isolated and its message does not leak;
+  - `max_concurrency`: `0`, `-1`, `True`, `False`, `1.5`, `2.0`, `"2"` and `None` are rejected before any provider runs; `1` and `3` are accepted, with peak concurrency equal to the limit.
+- **Sample providers:**
+  - the outer table cannot be set, deleted, cleared or have a tuple item replaced;
+  - nested `unavailable` mappings cannot be set, deleted or cleared;
+  - fixture fields cannot be reassigned;
+  - every fixture is hashable, which fails if any field is still mutable;
+  - the constructor copies its input;
+  - mutating returned options (or their dumps) does not change the fixtures or later results.
+- **Proof against the reviewed code:** I extracted `0bc18c7` with `git archive` into the scratchpad (repository untouched) and ran the new tests against it: `15 failed, 81 passed`.
+  - **Failing on the old code:** all 5 constructed-option variants, the missing-field case, the valid-copy case, the exploding-sequence case, 4 `max_concurrency` cases (`1.5`, `2.0`, `"2"`, `None`) and 3 fixture-immutability tests.
+  - **Passing on the old code:** the remaining new tests guard behaviour that was already correct.
+
+**Commands and actual results** (after the remediation; all exit 0)
+
+| Command | Result |
+|---|---|
+| `ruff format --check src tests scripts` | `22 files already formatted` |
+| `ruff check src tests scripts` | `All checks passed!` |
+| `mypy` | `Success: no issues found in 22 source files` |
+| `python -m pytest -q` | `426 passed, 1 skipped, 1 deselected` (the skip is the offline-only isolation test) |
+| `python -m pytest -q -p no:cacheprovider --import-mode=importlib` | `426 passed, 1 skipped, 1 deselected` |
+| `scripts/test-offline.sh -q` | unprivileged user+network namespace (uid 1000; no root); `namespace verified (lo only; IPv4/IPv6 unreachable)`; `427 passed, 1 deselected` |
+| `bandit -c pyproject.toml -r src` | `No issues identified.`; 1040 lines of code |
+| `pip-audit --disable-pip --require-hashes -r requirements/dev.lock.txt` | `No known vulnerabilities found` |
+| `pip-audit` (environment) | `No known vulnerabilities found` |
+| `pip check` | `No broken requirements found.` |
+| `python scripts/check_lock.py` | `check-lock: ok (52 pins; lock matches dev.txt exactly)` |
+| `scripts/check-gitignore.sh` | `check-gitignore: ok (6 visible, 8 ignored)` |
+| `git diff --check` | clean |
+
+**Not run, and unchanged**
+- actionlint and shellcheck: no workflow or shell script changed.
+- The 2 Low bandit findings in the unchanged `scripts/check_lock.py` (recorded above) were not addressed; they are out of scope.
+- **CI:** see "CI on the remediation commit" below (recorded after the run completed).
+
+**CI on the remediation commit:** run 40561490964, https://github.com/dhrubapatwary/route-smart-india/actions/runs/40561490964
+- **Run:** event `pull_request` (PR #3, draft); head `fa926874572abb81bd508114103245065a09d111`; **success** (18:36:07Z → 18:36:38Z); 0 non-success steps.
+- **Verification:** `gh run view` and the job log via the jobs API (491 lines). Read-only.
+- **Checks:**
+  - `check-lock: ok (52 pins; lock matches dev.txt exactly)`
+  - `check-gitignore: ok (6 visible, 8 ignored)`
+  - `22 files already formatted`
+  - `Success: no issues found in 22 source files`
+  - bandit `No issues identified.`; pip-audit `No known vulnerabilities found`
+- **Isolation:**
+  - `isolation path: network namespace via sudo (GitHub Actions opt-in); privileges dropped to uid 1001 by setpriv`
+  - `namespace verified (lo only; IPv4/IPv6 unreachable) … uid=1001 euid=1001 gid=1001`
+- **Tests:** `427 passed, 1 deselected`. The `tests/providers/` files appear in the progress lines.
+- **Log hygiene:** no `##[error]` lines.
+- **Limitations unchanged:** no real refusal by the script on the runner was demonstrated, and the unprivileged path is unverified on GitHub.
+- **Not covered:** this documentation-only follow-up commit gets its own CI run. It is reported in the session report, not here.
+
+---
+
+## 2026-10-27: PR #3 CI history (documentation reconciliation)
+
+**Verification:** each run below was checked with `gh run view <id> --json status,conclusion,event,headSha` (read-only). The test counts come from the job logs, retrieved via the jobs API and inspected when each run completed.
+
+| Run | Commit (PR #3) | Event | Status / conclusion | Evidence from the job log |
+|---|---|---|---|---|
+| [40558751674](https://github.com/dhrubapatwary/route-smart-india/actions/runs/40558751674) | `0bc18c72ac68766076f6705471f4016cc7a9e26a` (initial implementation) | `pull_request` | completed / **success** (18:18:33Z → 18:19:05Z) | `407 passed, 1 deselected`; sudo namespace path; uid 1001; namespace verified (lo only; IPv4/IPv6 unreachable) |
+| [40561490964](https://github.com/dhrubapatwary/route-smart-india/actions/runs/40561490964) | `fa926874572abb81bd508114103245065a09d111` (review remediation) | `pull_request` | completed / **success** (18:36:07Z → 18:36:38Z) | `427 passed, 1 deselected`; same namespace evidence (details above) |
+| [40561639108](https://github.com/dhrubapatwary/route-smart-india/actions/runs/40561639108) | `6dfd9db2cc2c11f35eb41d1272ab45094b1c69ce` (docs only; the reviewed PR head before this correction) | `pull_request` | completed / **success** (18:37:05Z → 18:37:40Z) | `427 passed, 1 deselected`; same namespace evidence. All 16 job steps succeeded. |
+
+**Notes**
+- Each run is evidence for **its own commit only**. Run 40561639108 validates `6dfd9db`, not any later commit.
+- This entry is part of a later documentation-only commit. A commit cannot record the result of its own CI run, so that run is reported outside this file and verified independently.
+- **Not run by CI:** the normal pytest suite, importlib mode, the environment pip-audit and `git diff --check`. Their evidence is local only (see the entries above).
+- **Limitations unchanged:** no real refusal by the script on the runner was demonstrated, and the unprivileged path is unverified on GitHub.

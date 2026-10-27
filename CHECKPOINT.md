@@ -4,6 +4,118 @@ Newest entry first. Read this at the start of every session.
 
 ---
 
+## 2026-10-27: Task 003 review remediation on PR #3 (draft). STOPPED for owner review.
+
+**Recovery check (CLAUDE.md §10):**
+- Branch `feature/task-003-sample-providers` @ `0bc18c7` equalled `origin/feature/task-003-sample-providers`; merge base with `main` `3510ade`.
+- PR #3 was open and a draft; its CI run 40558751674 succeeded.
+- The only uncommitted change was the owner's unstaged `CLAUDE.md` edit. It was preserved and not staged.
+
+**Done:** the three review findings were fixed with regression tests. Evidence and exact commands are in `TEST_RESULTS.md`, "Task 003 review remediation".
+1. The collector revalidates returned `TravelOption`s.
+2. Sample fixtures are deeply immutable.
+3. `max_concurrency` must be a non-bool `int` ≥ 1.
+
+**Local results:** 426 passed (normal and importlib); 427 passed offline; all checks clean.
+
+**Unchanged:**
+- the `TravelOption` schema, dependencies and lock;
+- the network guard, CI and settings;
+- the scoring proposal P2-PROP-05 (still PROPOSED);
+- approval records.
+
+No scoring and no increment 2.
+
+**Next action:** owner review of updated draft PR #3. No merge, and no increment 2, without separate explicit authorization. `CLAUDE.md` (unstaged) still awaits a separate commit decision.
+
+---
+
+## 2026-10-27: Task 003 implemented on a feature branch; draft PR for owner review. STOPPED at the stopping point.
+
+**Approvals** (owner, 2026-10-27; recorded in `DECISIONS.md`, "Owner decisions: Phase 2 planning"):
+- **P2-PROP-01:** Task 003 approved as documented.
+- **P2-PROP-02:** option A.
+- **P2-PROP-03:** `BLR`/`MAA` for all modes.
+- **P2-PROP-04:** the plan, as planning structure only.
+- The owner also authorized the branch, implementation, checks and a draft PR. **No merge** and no further increment.
+
+**Verified repository state:**
+- `origin/main` = `3510aded7a90a727b29c1c120cf6de3072b343f8` (re-verified after `git fetch`); no open PRs at the start.
+- Branch **`feature/task-003-sample-providers`** was created from `3510ade` with `git switch -c` (no upstream until push), carrying the four planning edits. Local `main` is unchanged.
+
+**Completed (Task 003 scope):**
+- `src/routesmart/providers/`:
+  - `TravelQuery`: rejects naive or ambiguous dates, identical endpoints, routes other than BLR → MAA, and past travel days (option A; no clock read);
+  - the `OptionProvider` async protocol;
+  - five deterministic `SampleOptionProvider`s: fictional operators; fixture version `2026-10-27.1`; fixed `retrieved_at`; `DataOrigin.SAMPLE`; a waitlisted rail option; car and cab with `not_applicable` times; a flight whose fare is missing and declared `not_provided`;
+  - `collect_options`: per-provider timeout, bounded concurrency, and distinct `success`/`empty`/`error`/`timeout` outcomes. Malformed or wrong-mode output is an `error`. Only the exception type is logged.
+- `tests/providers/`: 76 tests.
+- Scoring proposal **P2-PROP-05** (PROPOSED only; no scoring code).
+- Docs: DECISIONS, ROADMAP, TEST_RESULTS and this entry.
+- **Not changed:**
+  - `TravelOption` schema; dependencies and lock;
+  - network guard; offline script; CI workflow;
+  - repository settings.
+
+**Checks:** all passed locally (`TEST_RESULTS.md`, "Task 003 local validation"):
+- normal: 406 passed;
+- importlib: 406 passed;
+- offline script: 407 passed;
+- ruff; mypy (22 files); bandit `src`;
+- pip-audit ×2; `pip check`; `check_lock`; `check-gitignore`; `git diff --check`.
+
+CI on the draft PR is reported in the session's final report, not here.
+
+**Not part of the Task 003 commit:**
+- An **unstaged edit to `CLAUDE.md`**: §10 "Context Compaction and Recovery", a separate owner task.
+- Not staged or committed; it awaits separate authorization.
+
+**Open decisions:** P2-PROP-05 (scoring model; four open questions).
+
+**Blockers:** none for Task 003. Increment 2 (scoring) needs P2-PROP-05 approval and separate authorization.
+
+**Next action:** owner review of the Task 003 draft PR against `main`. Do not merge, or start increment 2, without separate explicit authorization.
+
+---
+
+## 2026-10-27: Phase 2 planning; Task 003 PROPOSED (awaiting owner approval). Not started. STOPPED.
+
+*(Annotation 2026-10-27: the owner later approved P2-PROP-01..04 and Task 003; see the newer entry above. This entry is kept as history.)*
+
+**Verified repository state** (checked on GitHub and with `git`):
+- **`main` = `origin/main` = `3510aded7a90a727b29c1c120cf6de3072b343f8`**, the merge commit of **PR #2** (merged 2026-10-27T17:55:15Z). PR #1 merged earlier as `baa9423`. There are **no open PRs**.
+- **Latest CI:** run **40555092439** (`push`, `main` @ `3510ade`), **success**, 0 failed steps.
+  - `331 passed, 1 deselected`; `test_offline_script.py` 34 and `test_offline_isolation.py` 1 passed.
+  - CI-only sudo namespace path; uid/euid/gid 1001; namespace verified (lo only; IPv4/IPv6 unreachable).
+  - lock, `.gitignore`, format, mypy, bandit and pip-audit all passed.
+- **Local:** `main` was fast-forwarded only, from `2b302e0` to `3510ade`; no history was rewritten.
+- **Planning edits:** the planning documents below were prepared in the working tree. They are not yet committed; branch creation awaits authorization (R4).
+
+**Phase:** Phase 1 complete (exit approved, G6-2; merged). **Phase 2: planning only.**
+
+**Phase 2 plan and Task 003:** see `ROADMAP.md`, "Phase 2 plan (PROPOSED …)" and the Task log entry "Task 003 --- Deterministic Sample-Data Option Providers for BLR → MAA". The full specification is there, not repeated here.
+- **Task 003 status:** **PROPOSED, awaiting owner approval. Not started.**
+- **Decisions awaiting the owner** (`DECISIONS.md`, "Proposed: Phase 2 planning"):
+  - **P2-PROP-01:** Task 003 scope;
+  - **P2-PROP-02:** travel-date interpretation. There is no existing convention, and instant comparison and calendar-day comparison give different results for "today";
+  - **P2-PROP-03:** sample place identifiers;
+  - **P2-PROP-04:** the Phase 2 increment plan.
+- **Phase A check (2026-10-27):** the existing `TravelOption` contract can represent every proposed fixture (waitlisted rail; road with `not_applicable` times; declared missing fields; all five modes; sample provenance). **No schema change is needed.** No previously approved Task 003 scope exists, so nothing conflicts.
+
+**Blockers:** owner approval of P2-PROP-01..04. Nothing else.
+
+**Next authorized action (after approval only):**
+1. Create a feature branch from `origin/main` (`3510ade`) and commit these planning documents.
+2. Implement only the approved Task 003 scope.
+3. Run all required checks, open a **draft PR** and stop for review. **No merge.**
+
+**Unchanged:**
+- `main` is unprotected (R6); the repository is public (R5).
+- Accepted limitations: no runner-level refusal demonstrated; the unprivileged path unverified on GitHub.
+- The e-mail note on PR #1's merge commit stands. PR #2's merge commit was authored with a GitHub no-reply address.
+
+---
+
 ## 2026-10-27: PR #1 merged into `main`; post-merge CI passed. Post-merge documentation reconciliation. STOPPED.
 
 **Phase:** **Phase 1 exit approved by the owner on 2026-10-27** (DECISIONS.md G6-2), and the Phase 1 work is **merged into `main`**.
@@ -40,11 +152,11 @@ Run 40553520066 details (from its job log):
 
 **This documentation update:**
 - Made on branch `docs/post-merge-phase1-status` from `origin/main` (`baa9423`), per R4.
-- Opened as a PR against `main`. **Not merged**; merging needs separate owner authorization.
+- Opened as a PR against `main`. **Not merged**; merging needs separate owner authorization. *(As of this entry. Merged later as PR #2, `3510ade`; see the newer entry above.)*
 - Its own CI result is reported in that PR.
 
 **Next actions:**
-1. Owner review of the documentation PR, and a separate merge decision.
+1. Owner review of the documentation PR, and a separate merge decision. *(Done: the owner authorized it, and PR #2 was merged on 2026-10-27; see the newer entry above.)*
 2. **Before any Task 003 work:** record Task 003's scope and stopping point in `ROADMAP.md` (Task log) and `CHECKPOINT.md`, and obtain its required owner authorization. **Task 003 has not started and remains blocked until then** (G6-4).
 
 ---

@@ -4,7 +4,32 @@
 decisions D-PROP-01..08 on 2026-10-27 (see `DECISIONS.md`). **Phase 1
 exit was approved by the owner on 2026-10-27** (Gate 6; DECISIONS.md
 G6-2).
-**Current status (2026-10-27, after the PR #1 merge):**
+**Current status (2026-10-27, Task 003 implemented and remediated; awaiting owner review in draft PR #3):**
+-   **Approved (owner, 2026-10-27):** P2-PROP-01..04 (`DECISIONS.md`,
+    "Owner decisions: Phase 2 planning"). The Phase 2 plan is approved as
+    a planning structure only; later increments need their own
+    authorization.
+-   **Task 003:** implementation and review remediation are done on
+    `feature/task-003-sample-providers` (branched from `main` @ `3510ade`).
+    **PR #3 is open as a draft**, awaiting owner review. It is **not
+    merged**, and Task 003 is not owner-approved as complete.
+    **Increment 2 has not started.**
+-   **Proposed, not approved:** the scoring model (P2-PROP-05).
+
+**Earlier status (2026-10-27, Phase 2 planning; verified against GitHub; historical):**
+-   **`main`:** `3510aded7a90a727b29c1c120cf6de3072b343f8`, the merge commit of
+    **PR #2** (post-merge documentation reconciliation; merged
+    2026-10-27T17:55:15Z). **Latest CI:** run 40555092439 (`push`, `main`
+    @ `3510ade`), **success**: `331 passed, 1 deselected`; all checks
+    passed; CI-only sudo namespace path; uid/euid/gid 1001; namespace
+    verified (lo only; IPv4/IPv6 unreachable). There are no open PRs.
+-   **Phase 2:** planning only. The plan below is **PROPOSED, awaiting
+    owner approval**. **Task 003** (Phase 2, increment 1) is proposed in
+    the Task log and has **not started**. Implementation is blocked
+    until the owner approves its scope and decisions P2-PROP-01..04
+    (`DECISIONS.md`).
+
+**Earlier status (2026-10-27, after the PR #1 merge; historical):**
 -   **Merged:** the Phase 1 work (`43e6966` Task 002; `b64cb17`,
     `8bcc143` and `34deb8c` documentation) is **merged into `main`**.
     PR #1 was merged at 2026-10-27T17:45:05Z with merge commit
@@ -131,6 +156,47 @@ merge commit `baa94234b90007bf5188326a409dcc3cc4f86d8c`; post-merge CI run 40553
 
 **Goal:** Demonstrate the core product end to end with deterministic
 mock data.
+
+### Phase 2 plan (PROPOSED 2026-10-27; awaiting owner approval, P2-PROP-04)
+
+*(Annotation 2026-10-27: the owner **approved** this plan as the proposed
+roadmap (P2-PROP-04). It approves the planning structure only, not the
+implementation of increments 2–4.)*
+
+The Phase 2 tasks and acceptance criteria further below are unchanged and
+remain the authoritative definition of the phase. This plan only proposes
+how to deliver them in owner-gated increments. Each increment needs its own
+recorded scope, stopping point and owner authorization before work starts
+(CLAUDE.md §13–§14).
+
+| Increment | Proposed content | Owner decisions needed first | Status |
+|---|---|---|---|
+| **1: Task 003** | Deterministic sample-data option providers for BLR → MAA (all five modes) and a concurrent collector, using the existing `TravelOption` contract unchanged. Also a scoring-model *proposal* (documentation only). | P2-PROP-01 (scope), P2-PROP-02 (travel-date interpretation), P2-PROP-03 (sample place identifiers) | **Approved 2026-10-27**; implemented on `feature/task-003-sample-providers`; draft PR for owner review (not merged) |
+| 2 (candidate) | Deterministic scoring module | Approval of the scoring model: weights, normalisation, directionality, missing data, ties (CLAUDE.md §8; D-PROP-07 open question) | Not proposed in detail |
+| 3 (candidate) | Schema extensions and the backend API contract and service | Final schema approval (D-IMPL-03 Phase 2 gate: risk inputs, cost breakdown, place codes, API envelope); API framework choice (a new dependency) | Not proposed in detail |
+| 4 (candidate) | Minimal client/PWA view | Client/PWA approach (ROADMAP Phase 7 requires it to be selected in `DECISIONS.md`) | Not proposed in detail |
+
+**Dependencies:**
+-   Increment 2 consumes increment 1's options.
+-   Increment 3's API must exist before the client depends on it
+    (CLAUDE.md §3).
+-   The order of increments 2–4 is a proposal.
+
+**Approval gates (existing, unchanged):**
+-   Schema and scoring semantics must be approved before any live
+    provider data is used (Phase 2 gate below).
+-   Scores are not probabilities (CLAUDE.md §8).
+-   No live providers, new dependencies, costs or deployment without
+    approval (CLAUDE.md §4, §6, §11).
+
+**Stopping conditions for every increment:** stop and ask if work would
+need any of the following:
+-   a schema change;
+-   a new dependency or framework;
+-   a scoring, API or client decision;
+-   live or network access;
+-   a change to the network guard or CI isolation;
+-   any work beyond the recorded stopping point.
 
 ### Tasks
 
@@ -519,3 +585,116 @@ Notes:
 -   Gate 5 verifies the observed runs only. It is not a production
     sandbox certification. The unprivileged namespace path has not run
     on GitHub.
+
+
+**Task 003 --- Deterministic Sample-Data Option Providers for BLR → MAA** (Phase 2, increment 1)
+
+**Status: PROPOSED (2026-10-27), awaiting owner approval** (P2-PROP-01;
+date semantics P2-PROP-02; place identifiers P2-PROP-03). **Not started.**
+No implementation may begin before the owner approves.
+
+**Status update (2026-10-27): APPROVED by the owner** (P2-PROP-01..04;
+`DECISIONS.md`, "Owner decisions: Phase 2 planning"). The text above is
+kept as history. **In progress** on `feature/task-003-sample-providers`.
+The approved conditions are:
+-   P2-PROP-02 option A: aware dates; the current instant is converted
+    into the travel date's timezone and calendar dates are compared;
+    today or later is accepted; the system clock is never read.
+-   P2-PROP-03: `BLR`/`MAA` for all modes; location mapping deferred.
+-   The contract is unchanged, and there are no new dependencies.
+
+**Delivered** (see `TEST_RESULTS.md` for evidence):
+-   `src/routesmart/providers/`: `query.py` (`TravelQuery`), `base.py`
+    (the `OptionProvider` protocol), `sample.py` (five sample providers;
+    fixture version `2026-10-27.1`; fixed `retrieved_at`
+    2026-10-27T00:00Z) and `collector.py` (`collect_options`).
+-   Tests: `tests/providers/` (76 tests).
+-   Scoring proposal: P2-PROP-05 in `DECISIONS.md`, PROPOSED only.
+
+**Review remediation (2026-10-27):** three review findings were fixed on
+PR #3 (still a draft). The findings were collector revalidation of options,
+deep immutability of the fixtures, and strict validation of
+`max_concurrency`. There are now 96 provider tests. Evidence is in
+`TEST_RESULTS.md`. Scope, acceptance criteria and the stopping point are
+unchanged.
+
+**Purpose:** a deterministic, tested, mocked source of travel options for
+the five modes, used as input for later Phase 2 scoring and API work.
+
+**In scope (if approved):**
+1.  **Query:** a typed query with origin, destination, travel date and a
+    caller-supplied current date, following existing conventions
+    (pydantic v2 contract style; timezone-aware datetimes).
+2.  **Provider interface:** a typed asynchronous provider interface
+    (CLAUDE.md §3) returning the existing `TravelOption` contract
+    **unchanged**.
+3.  **Five sample providers:** flight, rail, car, cab and bus, all
+    deterministic, with `DataOrigin.SAMPLE` provenance.
+4.  **Fixtures:** fixed and versioned. They include a **waitlisted rail**
+    option (`availability=waitlisted`, `waitlist_position`); a **road
+    option without fixed departure/arrival times**, declared
+    `not_applicable`; and options with **explicitly missing fields**
+    declared in `unavailable`, all within the existing contract.
+5.  **Collector:** runs the providers concurrently with a timeout per
+    provider. It reports **success, empty, exception and timeout**
+    distinctly, and keeps other providers' successful results.
+6.  **Tests:** focused tests in the normal and offline suites.
+7.  **Scoring proposal:** a scoring-model proposal in `DECISIONS.md`,
+    marked **PROPOSED**. No scoring code.
+
+**Query validation (deterministic):** reject
+-   identical origin and destination;
+-   any route other than BLR → MAA in this increment;
+-   a travel date before the supplied current date, with the semantics
+    per P2-PROP-02;
+-   a travel date or current date without timezone information.
+
+**Acceptance criteria:**
+-   Each of the five modes returns at least one valid, explicitly
+    sample-labelled option for BLR → MAA with a valid date.
+-   Identical inputs produce identical outputs.
+-   Invalid queries are rejected deterministically.
+-   Provider failure, empty output and timeout are distinguishable, and
+    the other providers still return results.
+-   No network activity occurs.
+-   The normal and offline suites pass.
+-   Existing checks pass:
+    -   pytest (normal, `--import-mode=importlib`, offline script);
+    -   ruff lint and format; strict mypy; bandit;
+    -   pip-audit; `pip check`; `check_lock.py`; `check-gitignore.sh`.
+-   CI passes on the draft PR.
+
+**Exclusions:** Task 003 does not authorize any of the following:
+-   scoring code, or approval of scoring semantics;
+-   a backend API or API framework;
+-   a client/PWA or client approach;
+-   any `TravelOption` schema change or new schema version;
+-   new dependencies;
+-   live providers, network calls, credentials, paid APIs or external
+    integrations;
+-   Supabase or database work;
+-   deployment;
+-   changes to the network guard or CI isolation;
+-   merging;
+-   any unlisted work.
+
+**Stop-and-ask conditions:**
+-   a fixture cannot fit the existing contract;
+-   an approved decision conflicts with the scope;
+-   a new dependency, framework, scoring, API or client decision, live
+    integration or network change appears necessary;
+-   any acceptance criterion cannot be met within scope.
+
+**Stopping point:** a **draft PR** with the approved implementation and
+documentation updates, all required checks passing, ready for owner
+review. Then stop: **no merge**, and no scoring, API, UI or further
+increment without separate explicit authorization.
+
+**Assumptions (to be confirmed with the scope):**
+-   **Code location:** a new `src/routesmart/providers/` package, with
+    tests under `tests/`.
+-   **Fixture content:** fictional operator names and illustrative
+    prices and times, clearly labelled as sample data. They do not imply
+    live availability or bookability (CLAUDE.md §2).
+-   **Provenance timestamps:** a fixed `retrieved_at` per fixture
+    version, not the system clock, so the output is deterministic.
