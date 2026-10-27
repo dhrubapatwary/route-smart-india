@@ -1,21 +1,28 @@
 # RouteSmart India --- Product Roadmap
 
 **Status:** Task 001 (baseline audit) is done. The owner approved
-decisions D-PROP-01..08 on 2026-10-27 (see `DECISIONS.md`). Phase 1 is
-in progress and **not complete**.
-**Current status (2026-10-27, after the Gate 6 review):**
--   **Commits:** Task 002 is committed (`43e6966`), with the Gate 5
-    documentation reconciliation (`b64cb17`), on
-    `feature/task-002-foundation`, in **draft** PR #1 against `main`.
+decisions D-PROP-01..08 on 2026-10-27 (see `DECISIONS.md`). **Phase 1
+exit was approved by the owner on 2026-10-27** (Gate 6; DECISIONS.md
+G6-2).
+**Current status (2026-10-27, Phase 1 exit approved):**
+-   **Commits:** the Phase 1 work (`43e6966` Task 002; `b64cb17` and
+    `8bcc143` documentation, plus the commit recording this status) is
+    on `feature/task-002-foundation` in **draft** PR #1 against `main`.
+    It is **not merged**.
 -   **Validation:** Gate 3 local validation passed. **Gate 5 remote CI
-    validation passed** (GitHub Actions runs 40515177175 on `43e6966`
-    and 40519555271 on `b64cb17`).
--   **Gate 6 exit review:** completed; Phase 1 exit is **not yet
-    recommended**.
--   **Open before exit:** the D-IMPL-08 fail-closed condition (owner
-    decision), a successful CI run on the final HEAD, and **explicit
-    owner approval** of the Phase 1 exit.
--   **Blocked:** PR #1 must not be merged, and Task 003 is blocked.
+    validation passed** (runs 40515177175 on `43e6966` and 40519555271
+    on `b64cb17`). The Gate 6 exit decision rests on run 40521272209
+    (success) on `8bcc143`.
+-   **D-IMPL-08:** the owner accepted the existing CI evidence (G6-1).
+    The fail-closed tests ran on CI with controlled inputs, and the real
+    runner's namespace path was verified separately. A real refusal on
+    the runner was not demonstrated, and the unprivileged path remains
+    unverified on GitHub.
+-   **Open:** a successful CI run on the final documentation commit,
+    then **separate owner authorization** to merge PR #1 (G6-3).
+-   **Task 003:** not started; blocked until its scope and stopping
+    point are recorded (Task log and `CHECKPOINT.md`) and its required
+    authorization is obtained (G6-4).
 
 Older Task log entries below are historical; the latest entry is
 authoritative.\
@@ -42,6 +49,12 @@ time, cost and risk.
     destructive data changes or consequential live actions.
 
 ## Phase 1 --- Repository Baseline, Feasibility and Foundation
+
+**Phase status:** **exit approved by the owner on 2026-10-27** (Gate 6;
+DECISIONS.md G6-1 and G6-2). The evidence is the Gate 6 review and CI run
+40521272209 (success) on `8bcc143`. The scope and acceptance criteria
+below are unchanged. The work is in draft PR #1 and is not merged into
+`main`.
 
 **Goal:** Establish a trustworthy baseline before implementation.
 
@@ -479,12 +492,18 @@ approved. **Stopping boundary:** stop after the round-3 report.
 | Publication | **Done** (owner-authorized) | Branch pushed; draft PR #1 against `main`. `main` is unchanged at `2b302e0`. |
 | Gate 5 remote CI validation | **PASSED for the observed runs** | GitHub Actions run 40515177175 (`43e6966`) and run 40519555271 (`b64cb17`) succeeded. Both: CI-only sudo namespace path; privileges dropped to uid 1001; namespace verified (lo only; IPv4/IPv6 unreachable); 331 passed, 1 deselected; namespace proof test passed. |
 | Documentation reconciliation | **Done** (owner-reviewed and authorized) | Committed as `b64cb175b852940660d39f46a641e4f3f1ab4302` and pushed; CI run 40519555271 succeeded. A further documentation-currency correction (Gate 6 remediation) was committed on top. |
-| Formal Phase 1 exit review (Gate 6) | **Review completed: exit NOT yet recommended** | The Phase 1 acceptance criteria above are unchanged. Remaining: (1) the owner resolves the D-IMPL-08 fail-closed condition (CI verified stub-level fail-closed tests and real namespace verification, but no runner-level failure path); (2) a successful CI run on the final HEAD; (3) explicit owner approval of the Phase 1 exit. |
+| Formal Phase 1 exit review (Gate 6) | **Review completed: exit NOT yet recommended** *(at the time of the review; superseded by the next row)* | The Phase 1 acceptance criteria above are unchanged. Remaining: (1) the owner resolves the D-IMPL-08 fail-closed condition (CI verified stub-level fail-closed tests and real namespace verification, but no runner-level failure path); (2) a successful CI run on the final HEAD; (3) explicit owner approval of the Phase 1 exit. |
+| Gate 6 owner decisions | **Phase 1 exit APPROVED by the owner (2026-10-27)** | G6-1: D-IMPL-08 CI evidence accepted (controlled-input fail-closed tests ran on CI, and the real namespace path was verified; no real refusal on the runner was demonstrated, and the unprivileged path is unverified on GitHub). G6-2: exit approved on the basis of run 40521272209 (success) on `8bcc143`. G6-3: merge not authorized. G6-4: Task 003 not started. |
 
 Notes:
--   PR #1 must not be merged before the Phase 1 exit review.
+-   PR #1 must not be merged before the Phase 1 exit review. *(The
+    review is done and the exit is approved; merging still needs
+    separate owner authorization after the final documentation commit's
+    CI succeeds, per G6-3.)*
 -   Task 003 has **not** started and remains blocked until the owner
-    explicitly approves the Phase 1 exit.
+    explicitly approves the Phase 1 exit. *(The exit was approved on
+    2026-10-27; Task 003 now also needs its scope and stopping point
+    recorded and its required authorization, per G6-4.)*
 -   Gate 5 verifies the observed runs only. It is not a production
     sandbox certification. The unprivileged namespace path has not run
     on GitHub.

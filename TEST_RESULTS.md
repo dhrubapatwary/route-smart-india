@@ -766,3 +766,53 @@ test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[40
 | (c) Runner-level failure path (the script refusing to run pytest on the runner) | **not exercised** on GitHub |
 
 **Not recorded here:** the CI result of the Gate 6 remediation commit itself, which can only be observed after it is pushed (PR #1 checks).
+
+---
+
+## 2026-10-27: Gate 6 decision evidence: CI run 40521272209 on `8bcc143`
+
+**Context**
+- Read-only verification before the owner's Gate 6 decision, at HEAD `8bcc143f57e4d81bae1466ee6844e8ba70822120` (clean tree; `main` = `2b302e0`).
+- Verified with `gh run view 40521272209 --json …` and the job log from `gh api repos/dhrubapatwary/route-smart-india/actions/jobs/122248709916/logs` (486 lines).
+- `gh run view --log` returned an empty log for this run (exit 0, 0 lines), so the jobs API was used instead.
+
+**Run 40521272209**, https://github.com/dhrubapatwary/route-smart-india/actions/runs/40521272209
+- **Run:** event `pull_request`; commit `8bcc143f57e4d81bae1466ee6844e8ba70822120`; **success**; workflow 14:27:26Z → 14:27:52Z; 0 non-success steps; runner image `ubuntu-24.04` (20261012.334.1).
+- **Install and checks:**
+  - `install-locked: stage 1 bootstrap pip: pip 26.2.1 …`, then `Successfully installed pip-26.2.2`, then stage 2 with pinned pip 26.2.2;
+  - `No broken requirements found.`
+  - `check-lock: ok (52 pins; lock matches dev.txt exactly)`
+  - `check-gitignore: ok (6 visible, 8 ignored)`
+  - `14 files already formatted`
+  - `Success: no issues found in 14 source files`
+  - bandit `No issues identified.` (581 LOC); pip-audit `No known vulnerabilities found`
+- **Isolation:**
+  - `test-offline: isolation path: network namespace via sudo (GitHub Actions opt-in); privileges dropped to uid 1001 by setpriv`
+  - `test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[4026532313] pid=2357 uid=1001 euid=1001 gid=1001; exec pytest`
+- **Tests:** `331 passed, 1 deselected in 0.98s`. Per-file progress: `tests/test_offline_script.py` 34 passed and `tests/test_offline_isolation.py` 1 passed, with no failure or skip markers in any file.
+- **Log hygiene:** no `##[error]`/`##[warning]` lines; no credential patterns.
+
+**Fail-closed assertions inspected** (`tests/test_offline_script.py`; they run the real script and the real probe source with stubbed `unshare`/`sudo` and fake sockets):
+- **Setup refusals assert `returncode == 2`:**
+  - sudo off by default;
+  - opt-in ignored outside GitHub Actions (6 `GITHUB_ACTIONS` values);
+  - only the exact opt-in value counts;
+  - the CI path when the namespace cannot be created;
+  - a missing interpreter.
+
+  Each also asserts the diagnostic text and that sudo was not invoked (or was invoked only for its probe).
+- **Probe refusals assert `returncode == 1` and that pytest is never exec'd** (marker and "namespace verified" absent): root euid, 8 unexpected IPv4 outcomes, 6 unexpected IPv6 outcomes, and extra interfaces.
+- **`tests/test_offline_isolation.py`** asserts, from inside pytest, the same netns as the probe, interfaces == {`lo`}, and euid/uid ≠ 0.
+
+**D-IMPL-08 interpretation accepted by the owner (G6-1, 2026-10-27)**
+
+| Evidence | Status |
+|---|---|
+| (A) Fail-closed behaviour with controlled inputs | **executed and passed on GitHub Actions** (runs 40515177175, 40519555271, 40521272209) |
+| (B) Real namespace establishment and isolation verification on the runner | **verified** in the same runs |
+| (C) A real refusal by the script on the GitHub runner itself | **not demonstrated and not claimed** |
+
+- The unprivileged namespace path remains **unverified on GitHub**.
+- The evidence covers the observed runs only; it is not production sandbox certification.
+
+**Outcome:** the owner approved the Phase 1 exit on 2026-10-27 (DECISIONS.md G6-2). The CI result of the commit recording this decision is reported in PR #1.

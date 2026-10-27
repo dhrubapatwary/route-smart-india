@@ -271,6 +271,7 @@ These are implementation choices made within the approved D-PROP-06 scope. They 
   - The namespace proof test passed.
   - The unprivileged namespace path remains **unverified** on GitHub.
   - This verifies the observed workflow run; it is **not** production sandbox certification.
+  - **Owner acceptance (Gate 6, 2026-10-27):** the owner accepted the existing CI evidence as satisfying the D-IMPL-08 verification conditions (runner path, runner-user identity, IPv4/IPv6 isolation, fail-closed behaviour). A real refusal on the GitHub runner was **not** demonstrated and is not claimed. See "Owner decisions: Gate 6".
   - The approval and its conditions are unchanged; see the runtime verification addendum below. (Implemented in Task 002 remediation.)
 - **Choice:**
   - `scripts/test-offline.sh` runs pytest in a Linux network namespace, using `unshare --user --map-root-user --net`, with a `sudo -n unshare --net` + `setpriv` fallback.
@@ -394,7 +395,7 @@ These were recorded on 2026-10-27 from the owner's Gate 1 decision message. No e
       - (a) unit-level fail-closed behaviour with stub and fake inputs: namespace-creation failure exits 2 without pytest; the opt-in is ignored outside GitHub Actions; root is refused; unexpected IPv4/IPv6 outcomes and extra interfaces fail closed before pytest;
       - (b) real namespace establishment and verification.
     - **Not verified on CI:** (c) a **runner-level failure path** in which the script itself refuses to run pytest. In both runs the unprivileged path failed on the runner and the script took the approved sudo path, which is a fallback, not a fail-closed exit.
-    - **Status of the "fail-closed behaviour" CI condition: open, owner decision required.** A safe runner-level verification method has been proposed for owner approval.
+    - **Status of the "fail-closed behaviour" CI condition: open, owner decision required.** *(Status when this assessment was written. Resolved 2026-10-27: the owner accepted the existing CI evidence; see "Owner decisions: Gate 6".)* A safe runner-level verification method has been proposed for owner approval.
 
 ### R2: M4 historical labels: APPROVED
 The SUPERSEDED labels for D-001, D-002, D-004 and D-007 are confirmed, conditional on the Gate 1 entry-by-entry check.
@@ -447,3 +448,42 @@ Two lines of verbatim historical Task 001 output contain the owner's local usern
   - **DECISIONS:** a Gate 6 evidence assessment was added under the D-IMPL-08 verification note. The CI logs show the fail-closed tests ran on the runner; a runner-level failure path was not exercised, so the condition stays **open** for an owner decision.
   - **TEST_RESULTS:** a Gate 6 evidence section was added.
   - No decision wording or conditions were changed, and there are no code, test, dependency or workflow changes.
+
+---
+
+## Owner decisions: Gate 6 (recorded 2026-10-27)
+
+These were recorded on 2026-10-27 from the owner's Gate 6 decision message, based on the completed Gate 6 review. No earlier date is claimed. Earlier records, including the original D-IMPL-08 wording, are unchanged.
+
+### G6-1: D-IMPL-08 CI evidence: ACCEPTED
+- **Decision:** the owner accepts the existing CI evidence as satisfying the approved D-IMPL-08 requirement to verify on CI the actual runner path, the runner-user identity, IPv4 and IPv6 isolation, and fail-closed behaviour.
+- **Fail-closed evidence (controlled inputs):** the fail-closed tests in `tests/test_offline_script.py` execute on GitHub Actions against the real script and the real probe source, with stubbed `unshare`/`sudo` and fake sockets. They passed on the runner in runs 40515177175, 40519555271 and 40521272209: 34 tests per run, according to the per-file progress lines.
+- **Real-runner evidence:** the runner's successful namespace path is independently verified in the same runs:
+  - the CI-only sudo path;
+  - privileges dropped to uid 1001;
+  - `namespace verified (lo only; IPv4/IPv6 unreachable) … uid=1001 euid=1001 gid=1001`;
+  - `tests/test_offline_isolation.py` passed.
+- **Not demonstrated and not claimed:** a real refusal by the script on the GitHub runner itself.
+- **Limitation preserved:** the unprivileged namespace path remains **unverified on GitHub**. The evidence covers the observed runs only; it is not production sandbox certification.
+- **Unchanged:** the fallback still requires both `ROUTESMART_OFFLINE_ALLOW_SUDO=1` and `GITHUB_ACTIONS=true`, and the script still fails closed.
+
+### G6-2: Phase 1 exit: APPROVED
+- **Decision:** the owner approves the Phase 1 exit.
+- **Basis:**
+  - the completed Gate 6 review;
+  - the verified CI result on commit `8bcc143f57e4d81bae1466ee6844e8ba70822120` (GitHub Actions run 40521272209, success);
+  - acceptance of the D-IMPL-08 evidence interpretation in G6-1.
+- **Location of the work:** Phase 1 artefacts remain on `feature/task-002-foundation` in draft PR #1. **They are not merged into `main`.**
+
+### G6-3: PR #1 merge: NOT authorized by this decision
+- Merge authorization is separate. It must be obtained explicitly after the CI run on the final documentation commit succeeds.
+
+### G6-4: Task 003: not started
+- Task 003 has not started.
+- Before implementation begins, its scope and stopping point must be recorded in `ROADMAP.md` (Task log) and `CHECKPOINT.md` (CLAUDE.md §14), and its required authorization must be obtained.
+
+## Changes log (Gate 6 decisions, 2026-10-27)
+- **R-032:** Recorded owner decisions G6-1 to G6-4.
+  - **Status notes:** the earlier "open, owner decision required" note (D-IMPL-08 Gate 6 assessment) is marked as resolved, and an owner-acceptance bullet was added to the D-IMPL-08 current status.
+  - **Other files:** CHECKPOINT, ROADMAP, TEST_RESULTS and the README status line were updated.
+  - **Unchanged:** decision wording, conditions and approval records. There are no code, test, script, workflow or dependency changes.

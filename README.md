@@ -2,7 +2,7 @@
 
 RouteSmart India is a risk-aware travel planning agent. It compares flight, rail, and road options on time, cost, and risk, and explains its recommendations. The pilot route is Bengaluru (BLR) → Chennai (MAA).
 
-**Status:** Phase 1 (foundation) is in progress and **not complete**.
+**Status:** Phase 1 (foundation) exit was **approved by the owner on 2026-10-27**. The work is in draft PR #1 and is not yet merged into `main` (see [CHECKPOINT.md](CHECKPOINT.md)). Task 003 has not started.
 - Task 002 added the tooling, the shared travel-option contract and a logging helper.
 - There are no live provider integrations. Development uses sample data only.
 

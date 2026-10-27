@@ -4,6 +4,54 @@ Newest entry first. Read this at the start of every session.
 
 ---
 
+## 2026-10-27: Phase 1 exit APPROVED by the owner (Gate 6 decisions recorded). STOPPED for owner review.
+
+**Phase:** **Phase 1 exit approved by the owner on 2026-10-27** (DECISIONS.md, "Owner decisions: Gate 6", G6-2). The Phase 1 work lives on `feature/task-002-foundation` in draft PR #1 and is **not merged into `main`**.
+
+**Owner decisions recorded (2026-10-27):**
+- **G6-1, D-IMPL-08 CI evidence: accepted.**
+  - Fail-closed behaviour was verified on CI with controlled inputs: the real script and probe, with stubbed `unshare`/`sudo` and fake sockets. 34 tests per run passed on the runner.
+  - The real runner's successful namespace path was verified separately: sudo path; uid/euid/gid 1001; lo only; IPv4/IPv6 unreachable.
+  - A real refusal on the GitHub runner was **not** demonstrated and is not claimed.
+  - The unprivileged namespace path remains **unverified** on GitHub.
+- **G6-2, Phase 1 exit: approved**, based on the Gate 6 review, CI run 40521272209 (success) on `8bcc143` and G6-1.
+- **G6-3, PR #1 merge: not authorized**; this needs a separate explicit authorization after the final documentation commit's CI succeeds.
+- **G6-4, Task 003: not started.**
+
+**Commits** (`main` = `origin/main` = `2b302e0`, unchanged):
+
+| Commit | Content | CI |
+|---|---|---|
+| `43e6966` | Task 002 | run 40515177175: success |
+| `b64cb17` | Gate 5 documentation | run 40519555271: success |
+| `8bcc143f57e4d81bae1466ee6844e8ba70822120` | Gate 6 documentation | **run 40521272209: success** (verified from run metadata and the job log) |
+| **This entry** | documentation-only commit on top of `8bcc143` | reported in PR #1 (a commit cannot record its own CI run) |
+
+Run 40521272209 details:
+- two-stage locked install (pip 26.2.1 → 26.2.2); `pip check`, `check_lock` (52 pins), `.gitignore`, format, mypy, bandit and pip-audit all passed;
+- `isolation path: network namespace via sudo (GitHub Actions opt-in); privileges dropped to uid 1001 by setpriv`;
+- `namespace verified (lo only; IPv4/IPv6 unreachable) … uid=1001 euid=1001 gid=1001`;
+- `331 passed, 1 deselected`; `test_offline_script.py` 34 passed, `test_offline_isolation.py` 1 passed; 0 failed or skipped; no credential patterns.
+
+**PR #1:** https://github.com/dhrubapatwary/route-smart-india/pull/1, **open, draft**, base `main`. **Merge: pending separate owner authorization.**
+
+**Next actions:**
+1. Confirm the CI run triggered by this documentation commit completes successfully (PR #1 checks).
+2. **Owner:** decide on merge authorization for PR #1. It is separate, and only after step 1 succeeds.
+3. **Before any Task 003 work:** record Task 003's scope and stopping point in `ROADMAP.md` (Task log) and `CHECKPOINT.md`, and obtain its required owner authorization. **Task 003 has not started and remains blocked until then.**
+
+**Accepted limitations:**
+- pattern-based redaction;
+- `sanitize_url` gaps;
+- direct `model_construct`/`model_copy(update=…)` bypass;
+- the unprivileged namespace path unverified on GitHub;
+- CI evidence from three runs on one runner image (not sandbox certification);
+- `main` unprotected (R6);
+- public repository (R5);
+- test coverage not measured.
+
+---
+
 ## 2026-10-27: Gate 6. Formal Phase 1 exit review completed (exit NOT yet recommended); documentation-currency remediation. STOPPED.
 
 **Phase:** Phase 1 **in progress (NOT complete)**. The owner has **not** approved the Phase 1 exit.
@@ -33,14 +81,14 @@ Both runs show:
 - **Technical evidence** supports exit. The 14:22Z local re-run at `b64cb17` passed (TEST_RESULTS.md, "Gate 6").
 - **Gap found:** the documentation-currency gap (stale "uncommitted" status and next action; run 40519555271 not recorded) is corrected in this remediation.
 
-**D-IMPL-08 fail-closed condition: OPEN, owner decision required.** The approved wording asks CI to verify "fail-closed behaviour".
+**D-IMPL-08 fail-closed condition: OPEN, owner decision required.** *(Status at the time of this entry. Resolved 2026-10-27: owner accepted the CI evidence; see the newer entry above.)* The approved wording asks CI to verify "fail-closed behaviour".
 - **Verified on CI:**
   - (a) unit-level fail-closed tests using stub and fake inputs: all 34 tests in `tests/test_offline_script.py` ran and passed on the runner in both runs;
   - (b) real namespace establishment and verification.
 - **Not verified on CI:** (c) a **runner-level failure path**, where the script refuses to run pytest. It has never been triggered on GitHub. The unprivileged path failed on the runner, but the script then took the approved sudo path; that is a fallback, not a fail-closed exit.
 - A safe verification method has been proposed for owner approval (see the Gate 6 remediation report). It would be a workflow change, outside this documentation-only task.
 
-**Remaining before Phase 1 exit:**
+**Remaining before Phase 1 exit** *(as of this entry; resolved 2026-10-27, Phase 1 exit owner-approved; see the newer entry above)*:
 1. The owner resolves the D-IMPL-08 fail-closed condition: accept (a) + (b) as sufficient, or approve the proposed runner-level check and its evidence.
 2. Complete any evidence or documentation that decision requires.
 3. A successful CI run on the final HEAD of PR #1.
