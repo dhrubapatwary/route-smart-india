@@ -609,6 +609,13 @@ The approved conditions are:
 -   Tests: `tests/providers/` (76 tests).
 -   Scoring proposal: P2-PROP-05 in `DECISIONS.md`, PROPOSED only.
 
+**Review remediation (2026-10-27):** three review findings were fixed on
+PR #3 (still a draft). The findings were collector revalidation of options,
+deep immutability of the fixtures, and strict validation of
+`max_concurrency`. There are now 96 provider tests. Evidence is in
+`TEST_RESULTS.md`. Scope, acceptance criteria and the stopping point are
+unchanged.
+
 **Purpose:** a deterministic, tested, mocked source of travel options for
 the five modes, used as input for later Phase 2 scoring and API work.
 

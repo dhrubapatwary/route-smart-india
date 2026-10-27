@@ -24,6 +24,7 @@ from typing import Final
 from routesmart.contracts import (
     AvailabilityStatus,
     DataOrigin,
+    FrozenMapping,
     Money,
     Provenance,
     TravelMode,
@@ -49,6 +50,10 @@ class SampleFixture:
     has no fixed schedule (road travel), and the departure and arrival must then
     be declared in ``unavailable``. ``fare_inr`` ``None`` must likewise be
     declared.
+
+    Instances are deeply immutable: ``unavailable`` is copied into a read-only
+    ``FrozenMapping`` at construction, and every other field is an immutable
+    value.
     """
 
     key: str
@@ -58,8 +63,12 @@ class SampleFixture:
     fare_inr: str | None
     availability: AvailabilityStatus = AvailabilityStatus.UNKNOWN
     waitlist_position: int | None = None
-    unavailable: Mapping[OptionalField, UnavailableReason] = field(default_factory=dict)
+    unavailable: Mapping[OptionalField, UnavailableReason] = field(default_factory=FrozenMapping)
     note: str | None = None
+
+    def __post_init__(self) -> None:
+        """Freeze ``unavailable`` so callers cannot change the fixture after construction."""
+        object.__setattr__(self, "unavailable", FrozenMapping(self.unavailable))
 
 
 SAMPLE_FIXTURES: Final[Mapping[TravelMode, tuple[SampleFixture, ...]]] = MappingProxyType(
@@ -187,7 +196,7 @@ def build_sample_option(
         ),
         availability=fixture.availability,
         waitlist_position=fixture.waitlist_position,
-        unavailable=fixture.unavailable,
+        unavailable=dict(fixture.unavailable),  # the contract makes its own frozen copy
         provenance=Provenance(
             origin=DataOrigin.SAMPLE, source=SAMPLE_SOURCE, retrieved_at=SAMPLE_RETRIEVED_AT
         ),

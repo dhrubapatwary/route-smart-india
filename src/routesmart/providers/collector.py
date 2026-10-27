@@ -2,7 +2,8 @@
 
 Each provider runs under its own timeout, with bounded concurrency. A provider
 that raises, times out, returns nothing or returns malformed output gets its own
-outcome; the other providers' options are kept. Only the exception *type* is
+outcome; the other providers' options are kept. Returned options are
+revalidated against the ``TravelOption`` contract. Only the exception *type* is
 recorded and logged, never its message, so provider responses or secrets
 embedded in error text cannot leak into outcomes or logs.
 """
@@ -15,6 +16,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Final
+
+from pydantic import ValidationError
 
 from routesmart.contracts import TravelOption
 from routesmart.log import get_logger
@@ -65,13 +68,26 @@ class CollectionResult:
 
 
 def _check_output(provider: OptionProvider, output: object) -> tuple[TravelOption, ...] | None:
-    """Return the options if ``output`` is a sequence of this provider's mode, else ``None``."""
+    """Return revalidated options if ``output`` is valid for ``provider``, else ``None``.
+
+    Every item must be a ``TravelOption`` of the provider's mode. Each one is
+    revalidated against the contract, because instances built with
+    ``model_construct()`` skip validation; the revalidated copies are returned.
+    """
     if not isinstance(output, Sequence) or isinstance(output, str | bytes):
         return None
-    options = tuple(output)
-    if not all(isinstance(o, TravelOption) and o.mode is provider.mode for o in options):
-        return None
-    return options
+    options: list[TravelOption] = []
+    for item in output:
+        if not isinstance(item, TravelOption):
+            return None
+        try:
+            option = TravelOption.model_validate(item)
+        except ValidationError:
+            return None
+        if option.mode is not provider.mode:
+            return None
+        options.append(option)
+    return tuple(options)
 
 
 async def _run_one(
@@ -92,7 +108,10 @@ async def _run_one(
             return ProviderOutcome(provider=name, status=OutcomeStatus.TIMEOUT)
         except Exception as exc:  # noqa: BLE001 (isolated per provider; recorded as an outcome)
             return _error(name, type(exc).__name__)
-    options = _check_output(provider, output)
+    try:
+        options = _check_output(provider, output)
+    except Exception:  # noqa: BLE001 (malformed output must not escape provider isolation)
+        options = None
     if options is None:
         return _error(name, INVALID_OUTPUT_ERROR)
     if not options:
@@ -134,7 +153,11 @@ async def collect_options(
         math.isfinite(provider_timeout) and provider_timeout > 0
     ):
         raise ValueError("provider_timeout must be a finite number of seconds greater than 0")
-    if isinstance(max_concurrency, bool) or max_concurrency < 1:
+    if (
+        isinstance(max_concurrency, bool)
+        or not isinstance(max_concurrency, int)
+        or max_concurrency < 1
+    ):
         raise ValueError("max_concurrency must be an integer >= 1")
     names = [provider.name for provider in providers]
     if len(set(names)) != len(names):

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import dataclasses
 from datetime import UTC, date, datetime, timedelta, timezone
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
 
 from routesmart.contracts import (
     AvailabilityStatus,
@@ -15,11 +17,13 @@ from routesmart.contracts import (
     TravelOption,
     UnavailableReason,
 )
+from routesmart.contracts.travel_option import OptionalField
 from routesmart.providers import (
     SAMPLE_FIXTURE_VERSION,
     SAMPLE_FIXTURES,
     SAMPLE_RETRIEVED_AT,
     OptionProvider,
+    SampleFixture,
     SampleOptionProvider,
     TravelQuery,
     sample_providers,
@@ -152,3 +156,70 @@ async def test_missing_fare_is_declared_not_silently_absent() -> None:
 def test_fixture_table_is_read_only() -> None:
     with pytest.raises(TypeError):
         SAMPLE_FIXTURES[TravelMode.FLIGHT] = ()  # type: ignore[index]
+    with pytest.raises(TypeError):
+        del SAMPLE_FIXTURES[TravelMode.FLIGHT]  # type: ignore[attr-defined]
+    with pytest.raises(AttributeError):
+        SAMPLE_FIXTURES.clear()  # type: ignore[attr-defined]
+    with pytest.raises(TypeError):
+        SAMPLE_FIXTURES[TravelMode.RAIL][0] = SAMPLE_FIXTURES[TravelMode.BUS][0]  # type: ignore[index]
+
+
+def all_fixtures() -> list[SampleFixture]:
+    return [fixture for fixtures in SAMPLE_FIXTURES.values() for fixture in fixtures]
+
+
+def test_nested_unavailable_mappings_are_read_only() -> None:
+    declared = [f for f in all_fixtures() if f.unavailable]
+    assert len(declared) == 3  # flight evening fare; car and cab times
+    for fixture in all_fixtures():
+        with pytest.raises(TypeError):
+            fixture.unavailable["duration"] = UnavailableReason.NOT_PROVIDED  # type: ignore[index]
+        with pytest.raises(AttributeError):
+            fixture.unavailable.clear()  # type: ignore[attr-defined]
+    for fixture in declared:
+        key = next(iter(fixture.unavailable))
+        with pytest.raises(TypeError):
+            del fixture.unavailable[key]  # type: ignore[attr-defined]
+
+
+def test_fixture_fields_cannot_be_reassigned() -> None:
+    fixture = SAMPLE_FIXTURES[TravelMode.CAR][0]
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        fixture.unavailable = {}  # type: ignore[misc]
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        fixture.fare_inr = "1.00"  # type: ignore[misc]
+
+
+def test_every_fixture_is_deeply_immutable_and_therefore_hashable() -> None:
+    # hash() fails on any frozen dataclass that still holds a mutable field value.
+    for fixture in all_fixtures():
+        assert hash(fixture) == hash(dataclasses.replace(fixture))
+
+
+def test_fixture_copies_its_unavailable_input() -> None:
+    source: dict[OptionalField, UnavailableReason] = {"total_cost": UnavailableReason.NOT_PROVIDED}
+    fixture = SampleFixture(
+        key="k", operator=None, departure=None, duration=None, fare_inr=None, unavailable=source
+    )
+    source["duration"] = UnavailableReason.NOT_APPLICABLE
+    assert dict(fixture.unavailable) == {"total_cost": UnavailableReason.NOT_PROVIDED}
+
+
+@pytest.mark.asyncio
+async def test_mutating_returned_options_cannot_change_fixtures_or_later_results() -> None:
+    before = {mode: list(fixtures) for mode, fixtures in SAMPLE_FIXTURES.items()}
+    first = await fetch(TravelMode.CAR)
+    option = first[0]
+    with pytest.raises(TypeError):
+        option.unavailable["duration"] = UnavailableReason.NOT_PROVIDED  # type: ignore[index]
+    with pytest.raises(ValidationError):
+        option.operator = "Changed"  # type: ignore[misc]
+    dumped = option.model_dump()
+    dumped["unavailable"]["duration"] = UnavailableReason.NOT_PROVIDED
+    dumped["provider_metadata"]["note"] = "changed"
+    assert {mode: list(fixtures) for mode, fixtures in SAMPLE_FIXTURES.items()} == before
+    assert await fetch(TravelMode.CAR) == first
+    assert dict((await fetch(TravelMode.CAR))[0].unavailable) == {
+        "departure_at": UnavailableReason.NOT_APPLICABLE,
+        "arrival_at": UnavailableReason.NOT_APPLICABLE,
+    }

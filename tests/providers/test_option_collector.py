@@ -242,10 +242,120 @@ async def test_invalid_timeout_is_rejected(value: float) -> None:
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("limit", [0, -1, True])
-async def test_invalid_concurrency_is_rejected(limit: int) -> None:
+@pytest.mark.parametrize("limit", [0, -1, True, False, 1.5, 2.0, "2", None])
+async def test_invalid_concurrency_is_rejected(limit: object) -> None:
+    provider = FakeProvider("p")
     with pytest.raises(ValueError, match="max_concurrency"):
-        await collect_options(QUERY, [FakeProvider("p")], max_concurrency=limit)
+        await collect_options(QUERY, [provider], max_concurrency=limit)  # type: ignore[arg-type]
+    assert provider.calls == 0
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("limit", [1, 3])
+async def test_valid_concurrency_limits_are_accepted_and_enforced(limit: int) -> None:
+    running = 0
+    peak = 0
+
+    class Counting(FakeProvider):
+        async def fetch_options(self, query: TravelQuery) -> Sequence[TravelOption]:
+            nonlocal running, peak
+            running += 1
+            peak = max(peak, running)
+            await asyncio.sleep(0.01)
+            running -= 1
+            return ()
+
+    result = await collect_options(
+        QUERY, [Counting(f"p{i}") for i in range(6)], max_concurrency=limit
+    )
+    assert peak == limit
+    assert [o.status for o in result.outcomes] == [OutcomeStatus.EMPTY] * 6
+
+
+def constructed(base: TravelOption, **changes: object) -> TravelOption:
+    """Build an unvalidated TravelOption from ``base`` via ``model_construct()``."""
+    fields: dict[str, object] = {name: getattr(base, name) for name in TravelOption.model_fields}
+    fields.update(changes)
+    return TravelOption.model_construct(**fields)  # type: ignore[arg-type]
+
+
+async def bus_option() -> TravelOption:
+    return (await SampleOptionProvider(TravelMode.BUS).fetch_options(QUERY))[0]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"destination": "BLR"},  # origin == destination
+        {"duration": None},  # missing value not declared in `unavailable`
+        {"waitlist_position": 3},  # waitlist position without `waitlisted`
+        {"option_id": ""},  # constraint violation
+        {"provenance": "sample"},  # wrong nested type
+    ],
+    ids=["same-endpoints", "undeclared-missing", "waitlist", "empty-id", "bad-provenance"],
+)
+async def test_unvalidated_constructed_option_is_rejected(
+    changes: dict[str, object], log_stream: io.StringIO
+) -> None:
+    invalid = constructed(await bus_option(), **changes)
+    rail = SampleOptionProvider(TravelMode.RAIL)
+    providers: list[OptionProvider] = [
+        FakeProvider("constructed", TravelMode.BUS, result=[invalid]),
+        rail,
+    ]
+    result = await collect_options(QUERY, providers)
+    bad, good = result.outcomes
+    assert (bad.status, bad.error_type, bad.options) == (
+        OutcomeStatus.ERROR,
+        INVALID_OUTPUT_ERROR,
+        (),
+    )
+    assert good.status is OutcomeStatus.SUCCESS
+    assert result.options == await rail.fetch_options(QUERY)
+    logged = log_stream.getvalue()
+    assert f"provider constructed failed: {INVALID_OUTPUT_ERROR}" in logged
+    assert "validation error" not in logged
+
+
+@pytest.mark.asyncio
+async def test_option_missing_a_required_field_is_rejected() -> None:
+    option = await bus_option()
+    fields = {n: getattr(option, n) for n in TravelOption.model_fields if n != "provenance"}
+    invalid = TravelOption.model_construct(**fields)
+    result = await collect_options(QUERY, [FakeProvider("p", TravelMode.BUS, result=[invalid])])
+    assert result.outcomes[0].error_type == INVALID_OUTPUT_ERROR
+
+
+@pytest.mark.asyncio
+async def test_constructed_option_with_valid_data_is_accepted_as_a_validated_copy() -> None:
+    valid = await bus_option()
+    unchecked = constructed(valid)
+    result = await collect_options(QUERY, [FakeProvider("p", TravelMode.BUS, result=[unchecked])])
+    assert result.outcomes[0].status is OutcomeStatus.SUCCESS
+    assert result.options == (valid,)
+    assert result.options[0] is not unchecked
+
+
+@pytest.mark.asyncio
+async def test_output_that_fails_while_being_checked_stays_isolated() -> None:
+    class ExplodingSequence(Sequence[TravelOption]):
+        def __getitem__(self, index: int) -> TravelOption:  # type: ignore[override]
+            raise RuntimeError(SENSITIVE_TEXT)
+
+        def __len__(self) -> int:
+            return 1
+
+    rail = SampleOptionProvider(TravelMode.RAIL)
+    providers: list[OptionProvider] = [
+        FakeProvider("exploding", result=ExplodingSequence()),
+        rail,
+    ]
+    result = await collect_options(QUERY, providers)
+    assert result.outcomes[0].status is OutcomeStatus.ERROR
+    assert result.outcomes[0].error_type == INVALID_OUTPUT_ERROR
+    assert result.outcomes[1].status is OutcomeStatus.SUCCESS
+    assert "SHOULD-NOT-LEAK" not in repr(result)
 
 
 @pytest.mark.asyncio

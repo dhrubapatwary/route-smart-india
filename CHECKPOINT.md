@@ -4,6 +4,32 @@ Newest entry first. Read this at the start of every session.
 
 ---
 
+## 2026-10-27: Task 003 review remediation on PR #3 (draft). STOPPED for owner review.
+
+**Recovery check (CLAUDE.md §10):**
+- Branch `feature/task-003-sample-providers` @ `0bc18c7` equalled `origin/feature/task-003-sample-providers`; merge base with `main` `3510ade`.
+- PR #3 was open and a draft; its CI run 40558751674 succeeded.
+- The only uncommitted change was the owner's unstaged `CLAUDE.md` edit. It was preserved and not staged.
+
+**Done:** the three review findings were fixed with regression tests. Evidence and exact commands are in `TEST_RESULTS.md`, "Task 003 review remediation".
+1. The collector revalidates returned `TravelOption`s.
+2. Sample fixtures are deeply immutable.
+3. `max_concurrency` must be a non-bool `int` ≥ 1.
+
+**Local results:** 426 passed (normal and importlib); 427 passed offline; all checks clean.
+
+**Unchanged:**
+- the `TravelOption` schema, dependencies and lock;
+- the network guard, CI and settings;
+- the scoring proposal P2-PROP-05 (still PROPOSED);
+- approval records.
+
+No scoring and no increment 2.
+
+**Next action:** owner review of updated draft PR #3. No merge, and no increment 2, without separate explicit authorization. `CLAUDE.md` (unstaged) still awaits a separate commit decision.
+
+---
+
 ## 2026-10-27: Task 003 implemented on a feature branch; draft PR for owner review. STOPPED at the stopping point.
 
 **Approvals** (owner, 2026-10-27; recorded in `DECISIONS.md`, "Owner decisions: Phase 2 planning"):

@@ -921,3 +921,67 @@ test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[40
 - The session network guard was active for every pytest run.
 - The offline script additionally ran the suite in a verified namespace.
 - The sample providers perform no I/O.
+
+---
+
+## 2026-10-27: Task 003 review remediation, local validation (`feature/task-003-sample-providers`)
+
+**Context**
+- **Base:** remediation on top of reviewed commit `0bc18c72ac68766076f6705471f4016cc7a9e26a` (PR #3, draft); merge base with `main` is `3510ade`.
+- **Environment:** venv `route_smart_env` (Python 3.13.5); local Linux machine. No live providers or credentials.
+- **Unrelated work:** the unstaged `CLAUDE.md` edit was present and was not touched.
+
+**Findings addressed**
+
+1. **Collector accepted unvalidated `TravelOption` instances** (`collector.py`).
+   - **Problem:** `model_construct()` instances passed the type and mode checks.
+   - **Fix:** each returned option is now revalidated with `TravelOption.model_validate` (the contract's `revalidate_instances="always"`), and the revalidated copies are returned. A `ValidationError`, a wrong mode or a non-option item gives `error` / `InvalidProviderOutput`.
+   - **Isolation:** output checking now runs inside its own exception boundary, so output that raises while it is being checked stays isolated to its provider. Only the outcome type is logged; no validation message is logged.
+2. **Nested fixture mappings were mutable** (`sample.py`).
+   - **Fix:** `SampleFixture.__post_init__` copies `unavailable` into the contract's existing read-only `FrozenMapping`.
+   - **Other fields:** `str`, `time`, `timedelta`, enum and `int` values are already immutable. The outer table is a `MappingProxyType` of tuples.
+   - **Boundary:** `build_sample_option` passes an explicit `dict` copy to the contract.
+   - **Fixture values are unchanged.**
+3. **`max_concurrency` accepted non-integers** (`collector.py`).
+   - **Fix:** `max_concurrency` must now be a non-bool `int` ≥ 1. Otherwise `ValueError("max_concurrency must be an integer >= 1")` is raised, with no coercion.
+
+**Regression tests** (`tests/providers/`: 96 tests, up from 76; per-file counts from `pytest --collect-only`: collector 41, query 33, sample providers 22)
+- **Collector:**
+  - five invalid `model_construct()` variants (same endpoints, undeclared missing value, waitlist without `waitlisted`, empty id, wrong nested provenance type) are rejected, while a sample rail provider in the same run still succeeds;
+  - a constructed option missing a required field is rejected;
+  - a constructed option with valid data is accepted as a validated copy;
+  - an output sequence that raises while it is read is isolated and its message does not leak;
+  - `max_concurrency`: `0`, `-1`, `True`, `False`, `1.5`, `2.0`, `"2"` and `None` are rejected before any provider runs; `1` and `3` are accepted, with peak concurrency equal to the limit.
+- **Sample providers:**
+  - the outer table cannot be set, deleted, cleared or have a tuple item replaced;
+  - nested `unavailable` mappings cannot be set, deleted or cleared;
+  - fixture fields cannot be reassigned;
+  - every fixture is hashable, which fails if any field is still mutable;
+  - the constructor copies its input;
+  - mutating returned options (or their dumps) does not change the fixtures or later results.
+- **Proof against the reviewed code:** I extracted `0bc18c7` with `git archive` into the scratchpad (repository untouched) and ran the new tests against it: `15 failed, 81 passed`.
+  - **Failing on the old code:** all 5 constructed-option variants, the missing-field case, the valid-copy case, the exploding-sequence case, 4 `max_concurrency` cases (`1.5`, `2.0`, `"2"`, `None`) and 3 fixture-immutability tests.
+  - **Passing on the old code:** the remaining new tests guard behaviour that was already correct.
+
+**Commands and actual results** (after the remediation; all exit 0)
+
+| Command | Result |
+|---|---|
+| `ruff format --check src tests scripts` | `22 files already formatted` |
+| `ruff check src tests scripts` | `All checks passed!` |
+| `mypy` | `Success: no issues found in 22 source files` |
+| `python -m pytest -q` | `426 passed, 1 skipped, 1 deselected` (the skip is the offline-only isolation test) |
+| `python -m pytest -q -p no:cacheprovider --import-mode=importlib` | `426 passed, 1 skipped, 1 deselected` |
+| `scripts/test-offline.sh -q` | unprivileged user+network namespace (uid 1000; no root); `namespace verified (lo only; IPv4/IPv6 unreachable)`; `427 passed, 1 deselected` |
+| `bandit -c pyproject.toml -r src` | `No issues identified.`; 1040 lines of code |
+| `pip-audit --disable-pip --require-hashes -r requirements/dev.lock.txt` | `No known vulnerabilities found` |
+| `pip-audit` (environment) | `No known vulnerabilities found` |
+| `pip check` | `No broken requirements found.` |
+| `python scripts/check_lock.py` | `check-lock: ok (52 pins; lock matches dev.txt exactly)` |
+| `scripts/check-gitignore.sh` | `check-gitignore: ok (6 visible, 8 ignored)` |
+| `git diff --check` | clean |
+
+**Not run, and unchanged**
+- actionlint and shellcheck: no workflow or shell script changed.
+- The 2 Low bandit findings in the unchanged `scripts/check_lock.py` (recorded above) were not addressed; they are out of scope.
+- **CI:** recorded below once the run completes. It is not claimed here.
