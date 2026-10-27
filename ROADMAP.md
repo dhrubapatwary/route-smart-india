@@ -4,22 +4,30 @@
 decisions D-PROP-01..08 on 2026-10-27 (see `DECISIONS.md`). **Phase 1
 exit was approved by the owner on 2026-10-27** (Gate 6; DECISIONS.md
 G6-2).
-**Current status (2026-10-27, Phase 1 exit approved):**
--   **Commits:** the Phase 1 work (`43e6966` Task 002; `b64cb17` and
-    `8bcc143` documentation, plus the commit recording this status) is
-    on `feature/task-002-foundation` in **draft** PR #1 against `main`.
-    It is **not merged**.
--   **Validation:** Gate 3 local validation passed. **Gate 5 remote CI
-    validation passed** (runs 40515177175 on `43e6966` and 40519555271
-    on `b64cb17`). The Gate 6 exit decision rests on run 40521272209
-    (success) on `8bcc143`.
+**Current status (2026-10-27, after the PR #1 merge):**
+-   **Merged:** the Phase 1 work (`43e6966` Task 002; `b64cb17`,
+    `8bcc143` and `34deb8c` documentation) is **merged into `main`**.
+    PR #1 was merged at 2026-10-27T17:45:05Z with merge commit
+    `baa94234b90007bf5188326a409dcc3cc4f86d8c`, after separate owner authorization.
+-   **Content preserved:** the merge commit's parents are `2b302e0` and
+    the reviewed PR head `34deb8c`. Its tree is identical to `34deb8c`,
+    and all four reviewed commits are in `main`'s history.
+-   **CI:**
+    -   PR head `34deb8c`: run 40551958918, success.
+    -   **Post-merge on `main` (`baa9423`): run 40553520066, success.**
+        `331 passed, 1 deselected`; CI-only sudo namespace path;
+        uid/euid/gid 1001; namespace verified (lo only; IPv4/IPv6
+        unreachable).
+-   **Earlier validation:** Gate 3 local validation passed. Gate 5 runs
+    40515177175 and 40519555271 succeeded. The Gate 6 exit decision
+    rests on run 40521272209 on `8bcc143`.
 -   **D-IMPL-08:** the owner accepted the existing CI evidence (G6-1).
     The fail-closed tests ran on CI with controlled inputs, and the real
     runner's namespace path was verified separately. A real refusal on
-    the runner was not demonstrated, and the unprivileged path remains
-    unverified on GitHub.
--   **Open:** a successful CI run on the final documentation commit,
-    then **separate owner authorization** to merge PR #1 (G6-3).
+    the runner was **not** demonstrated, and the unprivileged path
+    remains **unverified** on GitHub.
+-   **Unchanged:** `main` branch protection (not part of this work;
+    R6).
 -   **Task 003:** not started; blocked until its scope and stopping
     point are recorded (Task log and `CHECKPOINT.md`) and its required
     authorization is obtained (G6-4).
@@ -53,8 +61,8 @@ time, cost and risk.
 **Phase status:** **exit approved by the owner on 2026-10-27** (Gate 6;
 DECISIONS.md G6-1 and G6-2). The evidence is the Gate 6 review and CI run
 40521272209 (success) on `8bcc143`. The scope and acceptance criteria
-below are unchanged. The work is in draft PR #1 and is not merged into
-`main`.
+below are unchanged. The work was merged into `main` on 2026-10-27 (PR #1,
+merge commit `baa94234b90007bf5188326a409dcc3cc4f86d8c`; post-merge CI run 40553520066 succeeded).
 
 **Goal:** Establish a trustworthy baseline before implementation.
 
@@ -489,11 +497,12 @@ approved. **Stopping boundary:** stop after the round-3 report.
 |---|---|---|
 | Task 002 implementation and remediation (rounds 1–3, Gate 2, Gate 4 decision 1) | **Done** | Probe-outcome regression tests added. Commit `43e69663dbf5ce128d694782b0b6c3f16750749d` on `feature/task-002-foundation`. |
 | Gate 3 local validation | **PASS** | All 21 documented checks. Re-run after the probe tests: 330 passed + 1 skipped; 331 passed in the network namespace. |
-| Publication | **Done** (owner-authorized) | Branch pushed; draft PR #1 against `main`. `main` is unchanged at `2b302e0`. |
+| Publication | **Done** (owner-authorized) | Branch pushed; draft PR #1 against `main`. `main` is unchanged at `2b302e0`. *(At publication. `main` was later advanced by the PR #1 merge; see the "Merge" row.)* |
 | Gate 5 remote CI validation | **PASSED for the observed runs** | GitHub Actions run 40515177175 (`43e6966`) and run 40519555271 (`b64cb17`) succeeded. Both: CI-only sudo namespace path; privileges dropped to uid 1001; namespace verified (lo only; IPv4/IPv6 unreachable); 331 passed, 1 deselected; namespace proof test passed. |
 | Documentation reconciliation | **Done** (owner-reviewed and authorized) | Committed as `b64cb175b852940660d39f46a641e4f3f1ab4302` and pushed; CI run 40519555271 succeeded. A further documentation-currency correction (Gate 6 remediation) was committed on top. |
 | Formal Phase 1 exit review (Gate 6) | **Review completed: exit NOT yet recommended** *(at the time of the review; superseded by the next row)* | The Phase 1 acceptance criteria above are unchanged. Remaining: (1) the owner resolves the D-IMPL-08 fail-closed condition (CI verified stub-level fail-closed tests and real namespace verification, but no runner-level failure path); (2) a successful CI run on the final HEAD; (3) explicit owner approval of the Phase 1 exit. |
 | Gate 6 owner decisions | **Phase 1 exit APPROVED by the owner (2026-10-27)** | G6-1: D-IMPL-08 CI evidence accepted (controlled-input fail-closed tests ran on CI, and the real namespace path was verified; no real refusal on the runner was demonstrated, and the unprivileged path is unverified on GitHub). G6-2: exit approved on the basis of run 40521272209 (success) on `8bcc143`. G6-3: merge not authorized. G6-4: Task 003 not started. |
+| Merge of PR #1 into `main` | **Done** (separate owner authorization, 2026-10-27) | Merge commit `baa94234b90007bf5188326a409dcc3cc4f86d8c` (merged 17:45:05Z; the PR was marked ready from draft for the merge). Parents `2b302e0` and `34deb8c`; the tree is identical to the reviewed PR head. Post-merge CI run 40553520066 on `main` succeeded: 331 passed, 1 deselected; same namespace evidence and limitations. The feature branch was kept. |
 
 Notes:
 -   PR #1 must not be merged before the Phase 1 exit review. *(The
@@ -504,6 +513,9 @@ Notes:
     explicitly approves the Phase 1 exit. *(The exit was approved on
     2026-10-27; Task 003 now also needs its scope and stopping point
     recorded and its required authorization, per G6-4.)*
+-   *Post-merge (2026-10-27):* PR #1 was merged into `main` under a
+    separate owner authorization, and post-merge CI succeeded. Task 003
+    remains not started and blocked as stated above.
 -   Gate 5 verifies the observed runs only. It is not a production
     sandbox certification. The unprivileged namespace path has not run
     on GitHub.

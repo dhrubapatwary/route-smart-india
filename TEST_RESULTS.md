@@ -816,3 +816,36 @@ test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[40
 - The evidence covers the observed runs only; it is not production sandbox certification.
 
 **Outcome:** the owner approved the Phase 1 exit on 2026-10-27 (DECISIONS.md G6-2). The CI result of the commit recording this decision is reported in PR #1.
+
+---
+
+## 2026-10-27: Post-merge CI on `main`: run 40553520066
+
+**Context**
+- PR #1 was merged into `main` at 2026-10-27T17:45:05Z under a separate owner authorization.
+- Merge commit `baa94234b90007bf5188326a409dcc3cc4f86d8c`: parents `2b302e0` and `34deb8c`, tree identical to the reviewed PR head `34deb8c`. Verified with `git rev-parse baa9423^{tree}` = `34deb8c^{tree}`.
+- **Verification:** `gh run view 40553520066 --json …` and the job log via `gh api repos/dhrubapatwary/route-smart-india/actions/jobs/<job>/logs` (481 lines). Read-only.
+
+**PR head run 40551958918** (`pull_request`, `34deb8c`): **success** (17:35:01Z → 17:40:49Z). The job log was inspected before the merge:
+- sudo namespace path; uid/euid/gid 1001; lo only; IPv4/IPv6 unreachable;
+- `331 passed, 1 deselected`; `test_offline_script.py` 34, `test_offline_isolation.py` 1.
+
+**Run 40553520066**, https://github.com/dhrubapatwary/route-smart-india/actions/runs/40553520066
+- **Run:** event `push`; branch `main`; commit `baa94234b90007bf5188326a409dcc3cc4f86d8c`; **success** (17:45:07Z → 17:47:23Z); 0 non-success steps.
+- **Install and checks:**
+  - `install-locked: stage 1 bootstrap pip: pip 26.2.1 …`, then stage 2 with pinned pip 26.2.2;
+  - `check-lock: ok (52 pins; lock matches dev.txt exactly)`
+  - `check-gitignore: ok (6 visible, 8 ignored)`
+  - `14 files already formatted`
+  - `Success: no issues found in 14 source files`
+  - bandit `No issues identified.`; pip-audit `No known vulnerabilities found`
+- **Isolation:**
+  - `test-offline: isolation path: network namespace via sudo (GitHub Actions opt-in); privileges dropped to uid 1001 by setpriv`
+  - `test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[4026532269] pid=2612 uid=1001 euid=1001 gid=1001; exec pytest`
+- **Tests:** `331 passed, 1 deselected in 1.41s`. Per-file progress: `tests/test_offline_script.py` 34 passed, `tests/test_offline_isolation.py` 1 passed. 0 failed or skipped.
+- **Log hygiene:** no `##[error]` lines and no credential patterns.
+
+**Limitations (unchanged)**
+- A real refusal by the script on the GitHub runner was **not** demonstrated; the D-IMPL-08 evidence was accepted under G6-1.
+- The unprivileged namespace path remains **unverified** on GitHub.
+- The evidence covers the observed runs only; it is not production sandbox certification.
