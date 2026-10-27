@@ -1,0 +1,6 @@
+# Test-runner dependencies (used locally and in CI).
+# Future owner of pytest-mock and Python Playwright (pytest-playwright, D-PROP-08)
+# when first needed.
+-r base.txt
+pytest>=9.1,<10
+pytest-asyncio>=1.4,<2

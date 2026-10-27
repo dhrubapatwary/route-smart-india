@@ -1,0 +1,9 @@
+# Developer and CI quality/security tooling. Installs everything needed to
+# run the full local/CI check suite.
+-r testing.txt
+ruff>=0.17,<0.18
+mypy>=2.4,<3
+bandit>=1.9,<2
+pip-audit>=2.10,<3
+# Regenerates requirements/dev.lock.txt (see requirements/README.md).
+pip-tools>=7.6,<8

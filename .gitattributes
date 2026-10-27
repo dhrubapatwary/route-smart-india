@@ -1,0 +1,3 @@
+# Archived historical files are preserved byte-for-byte (see docs/history/*);
+# do not flag or "fix" whitespace in the original text.
+docs/history/*.md -whitespace
