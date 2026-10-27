@@ -1,6 +1,9 @@
 """Run option providers concurrently and report each provider's outcome.
 
-Each provider runs under its own timeout, with bounded concurrency. A provider
+Each provider runs under its own timeout, with bounded concurrency. The timeout
+is enforced by ``asyncio`` at cooperative ``await`` points only: it cannot
+interrupt a synchronous blocking call, so providers must not block the event loop
+and must do any I/O with asynchronous clients (see ``OptionProvider``). A provider
 that raises, times out, returns nothing or returns malformed output gets its own
 outcome; the other providers' options are kept. Returned options are
 revalidated against the ``TravelOption`` contract. Only the exception *type* is
@@ -138,8 +141,10 @@ async def collect_options(
     Args:
         query: The validated query passed to every provider.
         providers: Providers to run; names must be unique.
-        provider_timeout: Per-provider timeout in seconds (finite, > 0). Waiting for a
-            concurrency slot does not count against it.
+        provider_timeout: Per-provider timeout in seconds (finite, > 0). It bounds
+            the provider's asynchronous execution at ``await`` points and does not
+            forcibly interrupt synchronous blocking work. Waiting for a concurrency
+            slot does not count against it.
         max_concurrency: Maximum number of providers running at once (>= 1).
 
     Returns:

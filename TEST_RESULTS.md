@@ -1002,3 +1002,21 @@ test-offline: namespace verified (lo only; IPv4/IPv6 unreachable); netns=net:[40
 - **Log hygiene:** no `##[error]` lines.
 - **Limitations unchanged:** no real refusal by the script on the runner was demonstrated, and the unprivileged path is unverified on GitHub.
 - **Not covered:** this documentation-only follow-up commit gets its own CI run. It is reported in the session report, not here.
+
+---
+
+## 2026-10-27: PR #3 CI history (documentation reconciliation)
+
+**Verification:** each run below was checked with `gh run view <id> --json status,conclusion,event,headSha` (read-only). The test counts come from the job logs, retrieved via the jobs API and inspected when each run completed.
+
+| Run | Commit (PR #3) | Event | Status / conclusion | Evidence from the job log |
+|---|---|---|---|---|
+| [40558751674](https://github.com/dhrubapatwary/route-smart-india/actions/runs/40558751674) | `0bc18c72ac68766076f6705471f4016cc7a9e26a` (initial implementation) | `pull_request` | completed / **success** (18:18:33Z → 18:19:05Z) | `407 passed, 1 deselected`; sudo namespace path; uid 1001; namespace verified (lo only; IPv4/IPv6 unreachable) |
+| [40561490964](https://github.com/dhrubapatwary/route-smart-india/actions/runs/40561490964) | `fa926874572abb81bd508114103245065a09d111` (review remediation) | `pull_request` | completed / **success** (18:36:07Z → 18:36:38Z) | `427 passed, 1 deselected`; same namespace evidence (details above) |
+| [40561639108](https://github.com/dhrubapatwary/route-smart-india/actions/runs/40561639108) | `6dfd9db2cc2c11f35eb41d1272ab45094b1c69ce` (docs only; the reviewed PR head before this correction) | `pull_request` | completed / **success** (18:37:05Z → 18:37:40Z) | `427 passed, 1 deselected`; same namespace evidence. All 16 job steps succeeded. |
+
+**Notes**
+- Each run is evidence for **its own commit only**. Run 40561639108 validates `6dfd9db`, not any later commit.
+- This entry is part of a later documentation-only commit. A commit cannot record the result of its own CI run, so that run is reported outside this file and verified independently.
+- **Not run by CI:** the normal pytest suite, importlib mode, the environment pip-audit and `git diff --check`. Their evidence is local only (see the entries above).
+- **Limitations unchanged:** no real refusal by the script on the runner was demonstrated, and the unprivileged path is unverified on GitHub.

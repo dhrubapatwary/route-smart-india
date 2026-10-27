@@ -16,6 +16,11 @@ class OptionProvider(Protocol):
     They report failure by raising; the collector turns exceptions and timeouts
     into per-provider outcomes, so one failing provider never hides another's
     results.
+
+    ``fetch_options`` runs on the event loop and must not block it. Any I/O must
+    use asynchronous clients and operations (CLAUDE.md §3). The collector's
+    timeout only takes effect at ``await`` points; it cannot interrupt a
+    synchronous blocking call.
     """
 
     @property

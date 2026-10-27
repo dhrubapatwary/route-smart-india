@@ -4,14 +4,16 @@
 decisions D-PROP-01..08 on 2026-10-27 (see `DECISIONS.md`). **Phase 1
 exit was approved by the owner on 2026-10-27** (Gate 6; DECISIONS.md
 G6-2).
-**Current status (2026-10-27, Task 003 in progress on a feature branch):**
+**Current status (2026-10-27, Task 003 implemented and remediated; awaiting owner review in draft PR #3):**
 -   **Approved (owner, 2026-10-27):** P2-PROP-01..04 (`DECISIONS.md`,
     "Owner decisions: Phase 2 planning"). The Phase 2 plan is approved as
     a planning structure only; later increments need their own
     authorization.
--   **Task 003:** implemented on `feature/task-003-sample-providers`
-    (branched from `main` @ `3510ade`). Stopping point: a **draft PR**
-    for owner review. **No merge**, and no further increment.
+-   **Task 003:** implementation and review remediation are done on
+    `feature/task-003-sample-providers` (branched from `main` @ `3510ade`).
+    **PR #3 is open as a draft**, awaiting owner review. It is **not
+    merged**, and Task 003 is not owner-approved as complete.
+    **Increment 2 has not started.**
 -   **Proposed, not approved:** the scoring model (P2-PROP-05).
 
 **Earlier status (2026-10-27, Phase 2 planning; verified against GitHub; historical):**
