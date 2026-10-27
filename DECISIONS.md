@@ -496,3 +496,126 @@ These were recorded on 2026-10-27 from the owner's Gate 6 decision message, base
   - **Annotations:** G6-2's "not merged" statement and G6-3 are annotated, with their wording unchanged. CHECKPOINT, ROADMAP, README and TEST_RESULTS were updated.
   - **Unchanged:** approval records and the original D-IMPL-08 wording. No code, test, script, workflow, dependency or settings changes.
   - **Unchanged limitations:** a real refusal on the runner was not demonstrated, and the unprivileged path remains unverified on GitHub.
+
+---
+
+## Proposed: Phase 2 planning (2026-10-27), awaiting owner approval
+
+These are proposals, not approved decisions. Nothing here may be implemented until the owner approves it explicitly.
+
+*(Annotation 2026-10-27: the owner approved P2-PROP-01..04 on 2026-10-27, with the conditions recorded in "Owner decisions: Phase 2 planning" below.)*
+
+### P2-PROP-01: Task 003 scope
+- **Status:** PROPOSED (awaiting owner approval) *(Annotation 2026-10-27: **APPROVED by the owner**; see "Owner decisions: Phase 2 planning" below. The proposal text is kept unchanged as history.)*
+- **Proposal:** Task 003 is "Deterministic Sample-Data Option Providers for BLR → MAA", Phase 2 increment 1. The full scope, acceptance criteria, exclusions and stopping point are in `ROADMAP.md` (Task log).
+- **Basis:** builds only on approved decisions:
+  - D-PROP-01..04: sample data;
+  - D-PROP-07: mocked slice first;
+  - D-IMPL-03: contract direction, schema unchanged.
+- **Requires no:** new dependency, schema change, scoring decision, API decision or client decision.
+- **Consequences:** produces sample options for later increments. Scoring, API and client remain unstarted.
+
+### P2-PROP-02: Travel-date interpretation for queries
+- **Status:** PROPOSED (awaiting owner approval). There is **no existing convention**. The contract compares aware timestamps as instants (`docs/TRAVEL_OPTION_CONTRACT.md`), but the project has no travel-date concept. *(Annotation 2026-10-27: **APPROVED by the owner**; see "Owner decisions: Phase 2 planning" below. The proposal text is kept unchanged as history.)*
+- **The question:** "Reject dates before the supplied current date" needs a definition, because the options give different results for "today".
+- **Recommended (A):** the travel date is a timezone-aware datetime whose **calendar day in its own UTC offset** is the travel day. Compare that day with the current date converted to the same offset; reject if earlier. For example, travel `2026-11-02T00:00+05:30` with current `2026-11-02T10:00+05:30` is accepted (same day). Sample departures are generated on that travel day, in that offset.
+- **Alternative (B):** reject if the travel datetime is earlier, as an instant, than the current datetime. This would reject "today at 00:00" once the current time is later than midnight.
+
+### P2-PROP-03: Place identifiers for sample options
+- **Status:** PROPOSED (awaiting owner approval) *(Annotation 2026-10-27: **APPROVED by the owner**; see "Owner decisions: Phase 2 planning" below. The proposal text is kept unchanged as history.)*
+- **Proposal:** all sample options for every mode use the query's city-level codes, `origin="BLR"` and `destination="MAA"`. Place-code typing (IATA vs station codes such as SBC/MAS) is deferred to the Phase 2 schema gate (D-IMPL-03, `docs/TRAVEL_OPTION_CONTRACT.md` "Deliberately deferred"). This needs no schema change.
+- **Alternative:** mode-specific free-text places, e.g. "SBC"/"MAS" for rail. The contract permits this too, but it would pre-empt the deferred place-code decision.
+
+### P2-PROP-04: Phase 2 increment plan
+- **Status:** PROPOSED (awaiting owner approval) *(Annotation 2026-10-27: **APPROVED by the owner**; see "Owner decisions: Phase 2 planning" below. The proposal text is kept unchanged as history.)*
+- **Proposal:** deliver Phase 2 in owner-gated increments, as set out in `ROADMAP.md`, "Phase 2 plan":
+  1. Task 003, sample providers;
+  2. scoring, once the scoring model is approved;
+  3. schema extensions and the API, once the schema is approved and an API framework is chosen;
+  4. the minimal client, once a client approach is chosen.
+- **Unchanged:** Phase 2's tasks and acceptance criteria. Each increment needs its own scope approval.
+
+**Note:** the scoring-model *proposal* is a Task 003 deliverable (item 7). It will be added here as PROPOSED only if Task 003 is approved. It is not added now.
+
+## Changes log (Phase 2 planning, 2026-10-27)
+- **R-034:** Added proposals P2-PROP-01..04, each PROPOSED and awaiting owner approval.
+  - **ROADMAP:** the Phase 2 plan and the Task 003 task-log entry, both marked PROPOSED.
+  - **CHECKPOINT:** a new top entry, with the previous entry's "not merged / next action" lines annotated.
+  - **TEST_RESULTS:** run 40555092439.
+  - **Post-merge status reconciled:** PR #2 merged as `3510ade`; latest CI run 40555092439 succeeded.
+  - **Unchanged:** no approved decision changed or added. No code, test, script, workflow or dependency changes.
+
+---
+
+## Owner decisions: Phase 2 planning (recorded 2026-10-27)
+
+Recorded on 2026-10-27 from the owner's approval message for the Phase 2 planning and the Task 003 proposal. The proposals above are unchanged and annotated.
+
+### P2-PROP-01: Task 003: APPROVED
+- **Decision:** Task 003 is approved as documented in `ROADMAP.md` (Task log), including the code location (`src/routesmart/providers/`), fictional operator names, fixed provenance timestamps, scope, acceptance criteria, exclusions and stopping point.
+- **Condition:** the existing `TravelOption` contract remains authoritative. If implementation needs a schema change or a new dependency, stop and request approval.
+
+### P2-PROP-02: Travel-date semantics: APPROVED (option A)
+- **Decision:** both the travel date and the caller-supplied current date must be **timezone-aware**.
+- **Rule:** convert the supplied current instant into the **travel date's timezone**, then compare **calendar dates** in that timezone. Accept a travel date that is today or later; reject one before today.
+- **Constraint:** validation must **not read the system clock**.
+- **Rejected:** option B (instant comparison).
+
+### P2-PROP-03: Sample place names: APPROVED
+- **Decision:** use `BLR` and `MAA` from the query for all five modes.
+- **Deferred:** mode-specific airport, station and other location mapping, to the relevant future contract or design gate.
+
+### P2-PROP-04: Phase 2 plan: APPROVED as the proposed roadmap
+- **Decision:** the four-increment plan is approved as the **planning structure** only.
+- **Not authorized by this decision:** implementation of any later increment. Scoring, schema extensions, API framework selection and the client/PWA approach each remain subject to their own approval gates.
+
+### Execution authorization (same message)
+- Create `feature/task-003-sample-providers` from verified `origin/main` at `3510aded7a90a727b29c1c120cf6de3072b343f8`, carrying the four planning-document edits. Never commit directly to `main`.
+- Record the approvals in the existing documents; no standalone Task 003 document.
+- Implement only Task 003's approved scope, run the required checks, and open a **draft PR**.
+- Stop when the draft PR is ready for owner review: **no merge** and no further increment.
+- Preserve historical entries and approval records. No branch-protection changes, history rewrites, unapproved dependencies, live providers or external side effects.
+
+---
+
+## Proposed: scoring model (Task 003 deliverable, 2026-10-27), awaiting owner approval
+
+This is a **proposal only**. No scoring code exists or is authorized. Approving it is a separate owner decision, and implementing it is Phase 2 increment 2, which needs its own authorization (P2-PROP-04).
+
+### P2-PROP-05: Scoring model for travel options
+- **Status:** PROPOSED (awaiting owner approval)
+- **Inputs:** only `TravelOption` fields (CLAUDE.md §3); never `provider_metadata`.
+- **Model:** a configurable weighted sum of three normalised components, `score = w_time·time + w_cost·cost + w_risk·risk`, with `w_time + w_cost + w_risk = 1` and each weight in [0, 1]. **Lower is better.** The score is a relative ranking aid within one query's comparison set. It is **not a probability**, and it is not comparable across queries.
+- **Components and units:**
+  - **time:** `duration`, in minutes. Departure and arrival times are not scored, so road options whose times are `not_applicable` stay comparable.
+  - **cost:** `total_cost.amount`, in INR. Options in any other currency are not scored (no cross-currency handling; deferred in `docs/TRAVEL_OPTION_CONTRACT.md`).
+  - **risk:** schema version 1 has **no risk inputs** (deferred to the Phase 2 schema gate, D-IMPL-03), so no risk component can be computed yet. See open question 1.
+- **Normalisation:** min–max within the comparison set, `(x − min) / (max − min)`, giving 0 for the best and 1 for the worst. If every option has the same value, the component is 0 for all of them. This is deliberately relative: adding or removing an option can change the others' scores, and the explanation must say so.
+- **Missing data:** values are never substituted.
+  - An option whose `duration` or `total_cost` is unavailable is **unscored**. It is still listed, with the `unavailable` reason shown.
+  - The alternative of scoring on the remaining components with renormalised weights is not proposed, because it compares options on different bases.
+- **Constraints:**
+  - `sold_out` options are excluded from ranking and listed with the reason.
+  - `waitlisted` options are ranked, but flagged with the waitlist position. That position is **not** a confirmation probability.
+  - `unknown` availability is ranked and flagged.
+- **Ties:** equal scores (compared exactly as `Decimal`) are broken deterministically by lower cost, then shorter duration, then `option_id`.
+- **Explanation:** every result shows:
+  - each component's raw value, normalised value and weight;
+  - the weights used;
+  - the data origin and freshness (sample data is labelled **sample**);
+  - unscored and excluded options with their reasons.
+
+  Nothing claims that the top option is guaranteed fastest, cheapest or safest (CLAUDE.md §8).
+- **Proposed default weights:** `w_time = 0.5`, `w_cost = 0.5`, `w_risk = 0` until a risk component exists. This is a placeholder for the owner to set, not a product judgement.
+- **Open questions for the owner:**
+  1. **Risk before schema support:** either (a) keep `w_risk = 0` and disclose "risk not assessed", or (b) block scoring until the schema gate adds risk inputs.
+  2. **Waitlisted rail:** keep it as ranked and flagged, or exclude it until confirmation-likelihood data exists?
+  3. **Default weights,** and whether users may change them.
+  4. **Min–max vs fixed reference ranges** (for example, 0–12 h and ₹0–₹10,000). Fixed ranges keep scores stable when options change, but they need maintained bounds.
+
+## Changes log (Task 003, 2026-10-27)
+- **R-035:** Recorded the owner's approval of P2-PROP-01..04 and the execution authorization.
+  - The original proposal text is unchanged; each proposal's status line is annotated.
+  - Added the **P2-PROP-05** scoring-model proposal (PROPOSED only).
+  - Task 003 implementation is on `feature/task-003-sample-providers`: `src/routesmart/providers/` plus tests. No schema change and no new dependency.
+  - **Unchanged:** all earlier approval records.
