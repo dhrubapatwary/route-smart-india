@@ -1,0 +1,75 @@
+# Quality and security checks. Needs no secrets, provider credentials or
+# production data. Tests run on sample data inside an OS-level network namespace
+# (scripts/test-offline.sh) in addition to the in-process guard.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements/dev.lock.txt
+
+      # Stage 1: the runner's preinstalled pip (version printed, not pinned) installs only
+      # the hash-verified pinned pip. Stage 2: that pinned pip installs the full lock.
+      - name: Install locked dependencies (two-stage, hash-verified)
+        run: scripts/install-locked.sh
+
+      - name: Verify installed dependencies
+        run: python -m pip check
+
+      # Resolves requirements/dev.txt under the locked versions and fails on missing,
+      # obsolete or mismatched pins. Needs index access for metadata; installs nothing.
+      - name: Verify lock matches declared requirements exactly
+        run: python scripts/check_lock.py
+
+      - name: Check .gitignore rules
+        run: scripts/check-gitignore.sh
+
+      - name: Ruff lint
+        run: ruff check --output-format github
+
+      - name: Ruff format
+        run: ruff format --check
+
+      - name: Mypy
+        run: mypy
+
+      # Ubuntu 24.04 runners restrict unprivileged user namespaces via AppArmor by default
+      # (reported, not verified here), so the script's unprivileged path may fail there.
+      # ROUTESMART_OFFLINE_ALLOW_SUDO=1 enables the owner-approved (R3) CI-only fallback; the
+      # script also requires GITHUB_ACTIONS=true, which GitHub sets. sudo creates only the
+      # network namespace; setpriv drops to the runner uid before Python starts; the probe
+      # refuses root. Remove it to require unprivileged isolation only (fails closed if unavailable).
+      - name: Pytest in a network namespace (live tests excluded)
+        env:
+          ROUTESMART_OFFLINE_ALLOW_SUDO: "1"
+        run: scripts/test-offline.sh
+
+      - name: Bandit
+        run: bandit -c pyproject.toml -r src
+
+      - name: pip-audit (locked dependencies)
+        run: pip-audit --strict --progress-spinner off --disable-pip --require-hashes -r requirements/dev.lock.txt

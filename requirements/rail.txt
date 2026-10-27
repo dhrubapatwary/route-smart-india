@@ -1,0 +1,5 @@
+# Rail module runtime dependencies.
+# No rail-specific packages yet: Task 002 uses no live rail integration
+# (sample data only, see DECISIONS.md). Add provider clients here only
+# after the provider is verified and approved.
+-r base.txt

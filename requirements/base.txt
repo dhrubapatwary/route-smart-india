@@ -1,0 +1,4 @@
+# Shared runtime dependencies used by every RouteSmart module.
+# Owner of: the shared travel-option contract (src/routesmart/contracts).
+# Must not include any other requirements file (see requirements/README.md).
+pydantic>=2.14,<3

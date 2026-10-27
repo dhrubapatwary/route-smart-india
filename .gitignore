@@ -1,0 +1,36 @@
+# Python virtual environments
+route_smart_env/
+.venv/
+venv/
+
+# Python generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.egg-info/
+# Anchored to the repo root so source dirs such as src/routesmart/build/ stay visible.
+/build/
+/dist/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Local tooling
+.vscode/
+
+# Node / Playwright artefacts
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+
+# Tool reports (generated locally; regenerate rather than commit). Root only.
+/reports/

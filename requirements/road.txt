@@ -1,0 +1,5 @@
+# Road module runtime dependencies.
+# No road-specific packages yet: Task 002 uses no live road integration
+# (sample data only, see DECISIONS.md). Add provider clients here only
+# after the provider is verified and approved.
+-r base.txt

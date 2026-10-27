@@ -1,0 +1,81 @@
+# Project metadata and tool configuration.
+# Dependencies live in requirements/*.txt (see requirements/README.md), not here.
+# No [build-system]: the package is run from src/ and not installed (DECISIONS.md D-IMPL-02).
+
+[project]
+name = "routesmart"
+version = "0.0.0"
+description = "RouteSmart India: explainable, risk-aware multimodal travel recommendations."
+readme = "README.md"
+requires-python = ">=3.13"
+
+# --- pytest ---------------------------------------------------------------
+[tool.pytest.ini_options]
+minversion = "9.1"
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+# -p no:logging: pytest's log capture attaches to non-propagating loggers (routesmart is one),
+# bypasses RouteSmart redaction (failure reports would print records unredacted) and
+# re-raises the malformed-call errors the logging helper deliberately contains.
+# Tests use streams/capsys instead of caplog. See docs/TESTING.md.
+addopts = ["-ra", "--strict-markers", "--strict-config", "-m", "not live", "-p", "no:logging"]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
+asyncio_default_test_loop_scope = "function"
+filterwarnings = ["error"]
+markers = [
+    "live: calls a real external provider; deselected by default, skipped unless ROUTESMART_ALLOW_LIVE=1, never run in CI, requires explicit owner approval",
+]
+
+# --- ruff -----------------------------------------------------------------
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["src", "tests"]
+# Python only: never reformat Markdown documentation (ruff >= 0.17 formats .md by default).
+include = ["*.py", "*.pyi", "pyproject.toml"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort
+    "N",        # pep8-naming
+    "UP",       # pyupgrade
+    "B",        # bugbear
+    "S",        # bandit rules (complements the bandit CLI)
+    "BLE",      # blind except
+    "DTZ",      # naive datetimes
+    "ASYNC",    # async pitfalls
+    "SIM",      # simplifications
+    "PT",       # pytest style
+    "RUF",      # ruff-specific
+    "D",        # docstrings
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["routesmart", "testsupport"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "D"]
+
+# --- mypy -----------------------------------------------------------------
+[tool.mypy]
+python_version = "3.13"
+strict = true
+mypy_path = "src:tests"
+files = ["src", "tests", "scripts"]
+plugins = ["pydantic.mypy"]
+warn_unreachable = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+# --- bandit ---------------------------------------------------------------
+[tool.bandit]
+exclude_dirs = ["tests", "route_smart_env"]
