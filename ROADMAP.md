@@ -317,7 +317,7 @@ as follows:
 | # | Increment | Proposed home phase | Depends on | Gate (separate owner approval) | Stopping point | Status |
 |---|---|---|---|---|---|---|
 | 2 | Deterministic scoring foundation | 2 | P2-PROP-05 rev. 2 decisions; P2-PROP-06 scope | Scoring decisions, scope, stopping point | Draft PR with tests and CI; no merge | **Blocked**: scoring decisions open; not authorized |
-| 3a | Travel-option and itinerary contract review | 2 (schema gate) | None (planning only); may run alongside 2 if the owner authorizes it | Review scope; any schema change separately | Reviewed contract proposal and an explicit owner decision; no schema code | **Planning-only authorized** (2026-10-27); not started |
+| 3a | Travel-option and itinerary contract review | 2 (schema gate) | None (planning only). Increment 2 remains blocked; any future concurrent work requires separate explicit authorization. | Review scope; any schema change separately | Reviewed contract proposal and an explicit owner decision; no schema code | **Planning-only authorized** (2026-10-27); not started |
 | 3b | Schema extensions and backend API *(approved P2-PROP-04 item)* | 2 | 3a decisions; API framework choice | Schema approval (D-IMPL-03); framework (new dependency) | Draft PR; no merge | Existing gates; not authorized |
 | 4 | Minimal client/PWA *(approved P2-PROP-04 item)* | 2 | 3b | Client/PWA approach | Draft PR; no merge | Existing gates; not authorized |
 | 5 | Constraint-aware filtering and ranking | 2 (sample data) | 2; 3a/3b (constraint and time fields) | Requirements, scope, stopping point | Draft PR with tests and CI; no merge | Proposed; not authorized |
