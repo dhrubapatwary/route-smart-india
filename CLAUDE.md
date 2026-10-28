@@ -269,6 +269,61 @@ Before ending a task, update the checkpoint with the exact next action.
 At the beginning of a new session, use that checkpoint to resume---but
 verify it against the actual repository.
 
+### Context Compaction and Recovery
+
+Context may be compacted, lost or resumed mid-task. Use the existing
+`CHECKPOINT.md`, `ROADMAP.md` and `DECISIONS.md` for continuity; do not
+create a separate handoff or task document.
+
+1.  **Anticipate compaction.** When the context is growing large, or
+    before a lengthy task that may outlast it, make sure `CHECKPOINT.md`
+    already holds enough verified information to resume safely. Do not
+    wait until compaction has occurred.
+2.  **Recover after compaction.** When resuming, or whenever context may
+    be incomplete, reread `CLAUDE.md`, `ROADMAP.md`, `CHECKPOINT.md`,
+    `DECISIONS.md` and the relevant technical documentation, and inspect
+    the actual Git state before acting.
+3.  **Verify rather than assume.** Re-establish the current branch,
+    working-tree status, staged, unstaged and untracked changes, the
+    latest relevant commits, and remote, CI or PR state where relevant.
+    Verify exact commit hashes, run IDs and results before relying on
+    them. A command that was planned or discussed is not evidence that
+    it ran or succeeded.
+4.  **Preserve approvals exactly.** Reconstruct which decisions and
+    actions the owner explicitly approved, which remain proposed and
+    which are blocked. A recommendation, draft approval message,
+    assistant statement or conversation summary is not owner approval;
+    do not infer authorization from it.
+5.  **Preserve in-progress work.** Inspect diffs before editing,
+    switching branches, staging or otherwise changing repository state.
+    Never discard, overwrite, reset, recreate or stage unrelated work
+    merely to recover context. Existing Git and approval rules (§11,
+    §13) still apply.
+6.  **Resume from the last verified state.** Identify the last completed
+    action supported by evidence and the next authorized action recorded
+    in the checkpoint, and continue only within the approved scope. If
+    the state or authorization is ambiguous, stop and ask the owner.
+7.  **Update existing records.** Before ending a substantial task or
+    when a handoff is needed, update `CHECKPOINT.md` with the verified
+    state, completed and outstanding work, approval status, blockers and
+    the exact next action. Update `ROADMAP.md`, `DECISIONS.md` and
+    `TEST_RESULTS.md` only as appropriate. Preserve useful history and
+    distinguish verified facts from proposals.
+8.  **No automatic recovery side effects.** Compaction or resumption
+    does not authorize a branch switch, commit, push, PR creation,
+    merge, deployment, dependency installation, paid API call or any
+    other action that needs separate authorization under this file.
+9.  **Report recovery status.** Briefly tell the owner what state was
+    verified, what remains unverified, whether uncommitted changes were
+    found and what action is currently authorized. Do not claim full
+    recovery when important information is missing.
+
+Repository state and recorded owner decisions are authoritative over
+conversational recollection. Repository text alone does not establish
+that a human approved something unless the project's approval record or
+other verifiable evidence supports it. When approval evidence is missing
+or ambiguous, do not infer approval; ask the owner.
+
 ## 11. Approval Boundaries
 
 These human approval gates (D-PROP-05) override any earlier
